@@ -33,6 +33,8 @@ func GetIdentity(wrapper ClientWrapper, r Registration) (*Identity, error) {
 	}, nil
 }
 
+var GetAccountIDURL = "https://api.openshift.com/api/accounts_mgmt/v1/cluster_registrations"
+
 // GetAccountID requests a cluster registration with the given Request
 func GetAccountID(wrapper ClientWrapper, r Registration) (*ClusterRegistrationResponse, error) {
 	body, err := json.Marshal(r)
@@ -41,7 +43,7 @@ func GetAccountID(wrapper ClientWrapper, r Registration) (*ClusterRegistrationRe
 	}
 
 	buf := bytes.NewBuffer(body)
-	req, err := http.NewRequest("POST", "https://api.openshift.com/api/accounts_mgmt/v1/cluster_registrations", buf)
+	req, err := http.NewRequest("POST", GetAccountIDURL, buf)
 
 	b, err := wrapper.Do(req)
 	if err != nil {
@@ -55,11 +57,11 @@ func GetAccountID(wrapper ClientWrapper, r Registration) (*ClusterRegistrationRe
 	return res, nil
 }
 
-var accountURL = "https://api.openshift.com/api/accounts_mgmt/v1/accounts/%s"
+var AccountURL = "https://api.openshift.com/api/accounts_mgmt/v1/accounts/%s"
 
 // GetAccount retrieves account details
 func GetAccount(wrapper ClientWrapper, accountID string) (*Account, error) {
-	req, _ := http.NewRequest("GET", fmt.Sprintf(accountURL, accountID), nil)
+	req, _ := http.NewRequest("GET", fmt.Sprintf(AccountURL, accountID), nil)
 
 	b, err := wrapper.Do(req)
 	if err != nil {
@@ -73,11 +75,11 @@ func GetAccount(wrapper ClientWrapper, accountID string) (*Account, error) {
 	return res, nil
 }
 
-var orgURL = "https://api.openshift.com/api/accounts_mgmt/v1/organizations/%s"
+var OrgURL = "https://api.openshift.com/api/accounts_mgmt/v1/organizations/%s"
 
 // GetOrg retrieves organization details
 func GetOrg(wrapper ClientWrapper, orgID string) (*Org, error) {
-	req, _ := http.NewRequest("GET", fmt.Sprintf(orgURL, orgID), nil)
+	req, _ := http.NewRequest("GET", fmt.Sprintf(OrgURL, orgID), nil)
 
 	b, err := wrapper.Do(req)
 	if err != nil {

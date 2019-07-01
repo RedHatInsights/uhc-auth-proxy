@@ -11,20 +11,33 @@ type val struct {
 	Expires  time.Time
 }
 
-var cache = make(map[string]val)
-var mutex = &sync.Mutex{}
-
 func makeKey(r *Registration) string {
 	return fmt.Sprintf("%s:%s", r.ClusterID, r.AuthorizationToken)
 }
 
+type TimedCache struct {
+	ExpireDuration time.Duration
+	mutex          *sync.Mutex
+	cache          map[string]val
+}
+
+// NewTimedCache constructs a new TimedCache with the given duration as the
+// expire timeout
+func NewTimedCache(d time.Duration) *TimedCache {
+	return &TimedCache{
+		ExpireDuration: d,
+		mutex:          &sync.Mutex{},
+		cache:          make(map[string]val),
+	}
+}
+
 // Get fetches the Identity from the cache
-func Get(r *Registration) *Identity {
+func (c *TimedCache) Get(r *Registration) *Identity {
 	now := time.Now()
 	key := makeKey(r)
-	mutex.Lock()
-	i, ok := cache[key]
-	mutex.Unlock()
+	c.mutex.Lock()
+	i, ok := c.cache[key]
+	c.mutex.Unlock()
 
 	if !ok {
 		return nil
@@ -38,13 +51,16 @@ func Get(r *Registration) *Identity {
 }
 
 // Set caches ident for the registration
-func Set(r *Registration, ident *Identity) {
+func (c *TimedCache) Set(r *Registration, ident *Identity) {
 	key := makeKey(r)
 	v := val{
 		Identity: ident,
-		Expires:  time.Now().Add(time.Hour * 2),
+		Expires:  time.Now().Add(c.ExpireDuration),
 	}
-	mutex.Lock()
-	cache[key] = v
-	mutex.Unlock()
+	c.mutex.Lock()
+	c.cache[key] = v
+	c.mutex.Unlock()
 }
+
+// Cache is the default cache
+var Cache = NewTimedCache(time.Hour * 2)

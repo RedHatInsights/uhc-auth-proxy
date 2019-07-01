@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -43,4 +44,25 @@ func (c *HTTPClientWrapper) Do(req *http.Request) ([]byte, error) {
 	}
 
 	return b, nil
+}
+
+type FakeClientWrapper struct {
+	GetAccountIDResponse *ClusterRegistrationResponse
+	GetAccountResponse   *Account
+	GetOrgResponse       *Org
+}
+
+func (f *FakeClientWrapper) Do(req *http.Request) ([]byte, error) {
+	switch req.URL.String() {
+	case GetAccountIDURL:
+		b, err := json.Marshal(f.GetAccountIDResponse)
+		return b, err
+	case fmt.Sprintf(AccountURL, "123"):
+		b, err := json.Marshal(f.GetAccountResponse)
+		return b, err
+	case fmt.Sprintf(OrgURL, "123"):
+		b, err := json.Marshal(f.GetOrgResponse)
+		return b, err
+	}
+	return nil, fmt.Errorf("FakeClientWrapper failed to handle a case: %s", req.URL.String())
 }
