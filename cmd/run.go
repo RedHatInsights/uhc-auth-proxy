@@ -48,31 +48,26 @@ required to access the authentication service.`,
 			return
 		}
 
-		accountID, err := cluster.GetAccountID(cluster.AccountIDRequest{
+		wrapper := &cluster.HTTPClientWrapper{
 			Token: token,
-			Registration: cluster.Registration{
-				ClusterID:          ClusterID,
-				AuthorizationToken: AuthorizationToken,
-			},
+		}
+
+		accountID, err := cluster.GetAccountID(wrapper, cluster.Registration{
+			ClusterID:          ClusterID,
+			AuthorizationToken: AuthorizationToken,
 		})
 		if err != nil {
 			fmt.Println("oops", err)
 			return
 		}
 
-		account, err := cluster.GetAccount(cluster.AccountRequest{
-			Token:     token,
-			AccountID: accountID.AccountID,
-		})
+		account, err := cluster.GetAccount(wrapper, accountID.AccountID)
 		if err != nil {
 			fmt.Println("oops", err)
 			return
 		}
 
-		org, err := cluster.GetOrg(cluster.OrgRequest{
-			Token: token,
-			OrgID: account.Organization.ID,
-		})
+		org, err := cluster.GetOrg(wrapper, account.Organization.ID)
 		if err != nil {
 			fmt.Println("oops", err)
 			return
@@ -97,14 +92,4 @@ required to access the authentication service.`,
 
 func init() {
 	rootCmd.AddCommand(runCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// runCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// runCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
