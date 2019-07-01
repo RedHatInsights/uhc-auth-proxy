@@ -51,8 +51,6 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&OfflineAccessToken, "oat", "", "offline access token used to gain access to the authentication service")
-	rootCmd.PersistentFlags().StringVar(&ClusterID, "cluster-id", "", "cluster id of the cluster you wish to ID")
-	rootCmd.PersistentFlags().StringVar(&AuthorizationToken, "authorization-token", "", "authorization token of the cluster you wish to ID")
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,

@@ -24,16 +24,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type Internal struct {
-	OrgID string `json:"org_id"`
-}
-
-type Identity struct {
-	AccountNumber string   `json:"account_number"`
-	Type          string   `json:"type"`
-	Internal      Internal `json:"internal"`
-}
-
 // runCmd represents the run command
 var runCmd = &cobra.Command{
 	Use:   "run",
@@ -52,33 +42,14 @@ required to access the authentication service.`,
 			Token: token,
 		}
 
-		accountID, err := cluster.GetAccountID(wrapper, cluster.Registration{
+		ident, err := cluster.GetIdentity(wrapper, cluster.Registration{
 			ClusterID:          ClusterID,
 			AuthorizationToken: AuthorizationToken,
 		})
-		if err != nil {
-			fmt.Println("oops", err)
-			return
-		}
 
-		account, err := cluster.GetAccount(wrapper, accountID.AccountID)
 		if err != nil {
-			fmt.Println("oops", err)
+			fmt.Println("failed to get Identity", err)
 			return
-		}
-
-		org, err := cluster.GetOrg(wrapper, account.Organization.ID)
-		if err != nil {
-			fmt.Println("oops", err)
-			return
-		}
-
-		ident := &Identity{
-			AccountNumber: org.EbsAccountID,
-			Type:          "system",
-			Internal: Internal{
-				OrgID: org.ExternalID,
-			},
 		}
 
 		out, err := json.MarshalIndent(ident, "  ", "  ")
@@ -92,4 +63,6 @@ required to access the authentication service.`,
 
 func init() {
 	rootCmd.AddCommand(runCmd)
+	runCmd.PersistentFlags().StringVar(&ClusterID, "cluster-id", "", "cluster id of the cluster you wish to ID")
+	runCmd.PersistentFlags().StringVar(&AuthorizationToken, "authorization-token", "", "authorization token of the cluster you wish to ID")
 }

@@ -52,3 +52,13 @@ type OrgRequest struct {
 	Token string
 	OrgID string
 }
+
+type Internal struct {
+	OrgID string `json:"org_id"`
+}
+
+type Identity struct {
+	AccountNumber string   `json:"account_number"`
+	Type          string   `json:"type"`
+	Internal      Internal `json:"internal"`
+}
