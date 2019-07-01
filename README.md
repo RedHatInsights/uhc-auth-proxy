@@ -101,6 +101,7 @@ The API returns something like:
 ### GET https://api.openshift.com/api/accounts_mgmt/v1/organizations/:org_id
 
 The API returns something like:
+
     {
         "id": ":org_id",
         "kind": "Organization",
