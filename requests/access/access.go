@@ -6,15 +6,21 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sync"
+	"time"
 )
 
 type response struct {
 	AccessToken string `json:"access_token"`
+	ExpiresIn   int64  `json:"expires_in"`
 }
 
 var URL = "https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
+var mutex = &sync.Mutex{}
+var token = ""
+var expires = time.Now().Unix()
 
-func Do(offlineAccessToken string) (string, error) {
+func fetch(offlineAccessToken string) (*response, error) {
 	client := &http.Client{}
 	resp, err := client.PostForm(URL, url.Values{
 		"grant_type":    {"refresh_token"},
@@ -22,19 +28,36 @@ func Do(offlineAccessToken string) (string, error) {
 		"refresh_token": {offlineAccessToken},
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	r := &response{}
 	if err := json.Unmarshal(body, r); err != nil {
-		return "", fmt.Errorf("failed to unmarshal: %s", body)
+		return nil, fmt.Errorf("failed to unmarshal: %s", body)
 	}
 
-	return r.AccessToken, nil
+	return r, nil
+}
+
+// GetToken retrieves an access token from cache or the sso service
+func GetToken(offlineAccessToken string) (string, error) {
+	now := time.Now().Unix()
+	if now >= expires || token == "" {
+		r, err := fetch(offlineAccessToken)
+		if err != nil {
+			return "", err
+		}
+
+		mutex.Lock()
+		token = r.AccessToken
+		expires = now + r.ExpiresIn
+		mutex.Unlock()
+	}
+	return token, nil
 }

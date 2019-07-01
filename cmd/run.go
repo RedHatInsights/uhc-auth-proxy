@@ -42,7 +42,7 @@ var runCmd = &cobra.Command{
 cluster_id and authorization_token. This will always refresh the token
 required to access the authentication service.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		token, err := access.Do(OfflineAccessToken)
+		token, err := access.GetToken(OfflineAccessToken)
 		if err != nil {
 			fmt.Println("oops", err)
 			return
