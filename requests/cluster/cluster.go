@@ -47,6 +47,7 @@ func GetAccountID(wrapper ClientWrapper, r Registration) (*ClusterRegistrationRe
 	if err != nil {
 		return nil, err
 	}
+
 	res := &ClusterRegistrationResponse{}
 	if err := json.Unmarshal(b, res); err != nil {
 		return nil, err

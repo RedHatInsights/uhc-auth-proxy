@@ -16,8 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/redhatinsights/uhc-auth-proxy/server"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +25,7 @@ var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "starts the service",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("start called")
+		server.Start(OfflineAccessToken)
 	},
 }
 

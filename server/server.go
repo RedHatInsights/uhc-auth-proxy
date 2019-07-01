@@ -1,14 +1,17 @@
 package server
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/redhatinsights/platform-go-middlewares/request_id"
-	"github.com/redhatinsights/uhc-auth-proxy/pkg/requests/cluster"
+	"github.com/redhatinsights/uhc-auth-proxy/requests/access"
+	"github.com/redhatinsights/uhc-auth-proxy/requests/cluster"
 )
 
 // returns the cluster id from the user agent string used by the support operator
@@ -27,14 +30,14 @@ func getClusterID(userAgent string) (string, error) {
 }
 
 func getToken(authorizationHeader string) (string, error) {
-	if !strings.HasPrefix(authorizationHeader, `Bearer: `) {
-		return "", errors.New("Not a bearer token")
+	if !strings.HasPrefix(authorizationHeader, `Bearer `) {
+		return "", fmt.Errorf("Not a bearer token: '%s'", authorizationHeader)
 	}
 
-	return strings.TrimPrefix(authorizationHeader, `Bearer: `), nil
+	return strings.TrimPrefix(authorizationHeader, `Bearer `), nil
 }
 
-func main() {
+func Start(offlineAccessToken string) {
 	r := chi.NewRouter()
 	r.Use(
 		request_id.ConfiguredRequestID("x-rh-insights-request-id"),
@@ -55,16 +58,44 @@ func main() {
 			return
 		}
 
-		reg := &cluster.Registration{
+		reg := cluster.Registration{
 			ClusterID:          clusterID,
 			AuthorizationToken: token,
 		}
 
-		b, err := json.Marshal(reg)
+		accessToken, err := access.GetToken(offlineAccessToken)
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+
+		wrapper := &cluster.HTTPClientWrapper{
+			Token: accessToken,
+		}
+
+		ident, err := cluster.GetIdentity(wrapper, reg)
+		if err != nil {
+			w.WriteHeader(401)
+			return
+		}
+
+		b, err := json.Marshal(ident)
 		if err != nil {
 			w.WriteHeader(400)
 			return
 		}
-		
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(200)
+		w.Write(b)
 	})
+
+	srv := http.Server{
+		Addr:    fmt.Sprintf(":3000"),
+		Handler: r,
+	}
+
+	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+		fmt.Printf("server closed with error: %v\n", err)
+	}
 }
