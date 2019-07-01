@@ -13,6 +13,8 @@ requests without requiring a customer to store their SSO credentials
 somewhere within their cluster. This, in turn, enables the support-operator
 to send data with no additional configuration required.
 
+![Image](../blob/master/uhc-auth-proxy.png?raw=true)
+
 ## How it works
 
 1. A request is made containing the cluster_id and authorization_token from a
