@@ -13,7 +13,7 @@ requests without requiring a customer to store their SSO credentials
 somewhere within their cluster. This, in turn, enables the support-operator
 to send data with no additional configuration required.
 
-![Image](../blob/master/uhc-auth-proxy.png?raw=true)
+![Image](../master/uhc-auth-proxy.png?raw=true)
 
 ## How it works
 
