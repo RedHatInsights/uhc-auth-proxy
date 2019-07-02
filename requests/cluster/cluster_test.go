@@ -25,10 +25,23 @@ var _ = Describe("Cluster", func() {
 		}
 		ident = &Identity{
 			AccountNumber: "123",
+			Type:          "system",
+			Internal: Internal{
+				OrgID: "123",
+			},
 		}
-		clusterRegResponse = &ClusterRegistrationResponse{}
-		account = &Account{}
-		org = &Org{}
+		clusterRegResponse = &ClusterRegistrationResponse{
+			AccountID: "123",
+		}
+		account = &Account{
+			Organization: Organization{
+				ID: "123",
+			},
+		}
+		org = &Org{
+			EbsAccountID: "123",
+			ExternalID:   "123",
+		}
 		wrapper = &FakeClientWrapper{
 			GetAccountIDResponse: clusterRegResponse,
 			GetAccountResponse:   account,
@@ -72,6 +85,12 @@ var _ = Describe("Cluster", func() {
 	Describe("GetOrg with valid orgID", func() {
 		It("should return a proper Org struct", func() {
 			Expect(GetOrg(wrapper, "123")).To(Equal(org))
+		})
+	})
+
+	Describe("GetIdentity with a valid Registration", func() {
+		It("should return a proper Identity", func() {
+			Expect(GetIdentity(wrapper, *reg)).To(Equal(ident))
 		})
 	})
 })
