@@ -1,4 +1,4 @@
-package cluster
+package client
 
 import (
 	"encoding/json"
@@ -9,28 +9,28 @@ import (
 
 var client = &http.Client{}
 
-// HttpClientWrapper manages the headers and auth required to speak
+// HTTPWrapper manages the headers and auth required to speak
 // with the auth service.  It also provides a convenience method
 // to get the bytes from a request.
-type HTTPClientWrapper struct {
+type HTTPWrapper struct {
 	Token string
 }
 
-// ClientWrapper provides a convenience method for getting bytes from
+// Wrapper provides a convenience method for getting bytes from
 // a http request
-type ClientWrapper interface {
+type Wrapper interface {
 	Do(req *http.Request) ([]byte, error)
 }
 
 // AddHeaders sets the client headers, including the auth token
-func (c *HTTPClientWrapper) AddHeaders(req *http.Request) {
+func (c *HTTPWrapper) AddHeaders(req *http.Request) {
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.Token))
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 }
 
 // Do is a convenience wrapper that returns the response bytes
-func (c *HTTPClientWrapper) Do(req *http.Request) ([]byte, error) {
+func (c *HTTPWrapper) Do(req *http.Request) ([]byte, error) {
 	c.AddHeaders(req)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -46,13 +46,13 @@ func (c *HTTPClientWrapper) Do(req *http.Request) ([]byte, error) {
 	return b, nil
 }
 
-type FakeClientWrapper struct {
+type FakeWrapper struct {
 	GetAccountIDResponse *ClusterRegistrationResponse
 	GetAccountResponse   *Account
 	GetOrgResponse       *Org
 }
 
-func (f *FakeClientWrapper) Do(req *http.Request) ([]byte, error) {
+func (f *FakeWrapper) Do(req *http.Request) ([]byte, error) {
 	switch req.URL.String() {
 	case GetAccountIDURL:
 		b, err := json.Marshal(f.GetAccountIDResponse)
