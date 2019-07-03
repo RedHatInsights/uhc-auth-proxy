@@ -12,7 +12,7 @@ var client = &http.Client{}
 // with the auth service.  It also provides a convenience method
 // to get the bytes from a request.
 type HTTPWrapper struct {
-	Token string
+	OfflineAccessToken string
 }
 
 // Wrapper provides a convenience method for getting bytes from
@@ -22,15 +22,19 @@ type Wrapper interface {
 }
 
 // AddHeaders sets the client headers, including the auth token
-func (c *HTTPWrapper) AddHeaders(req *http.Request) {
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.Token))
+func (c *HTTPWrapper) AddHeaders(req *http.Request, token string) {
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 }
 
 // Do is a convenience wrapper that returns the response bytes
 func (c *HTTPWrapper) Do(req *http.Request) ([]byte, error) {
-	c.AddHeaders(req)
+	token, err := GetToken(c.OfflineAccessToken)
+	if err != nil {
+		return nil, err
+	}
+	c.AddHeaders(req, token)
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err

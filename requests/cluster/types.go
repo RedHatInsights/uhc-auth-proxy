@@ -1,6 +1,11 @@
 package cluster
 
-import "time"
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"time"
+)
 
 // Registration is the document posted to cluster registration service
 type Registration struct {
@@ -61,4 +66,25 @@ type Identity struct {
 	AccountNumber string   `json:"account_number"`
 	Type          string   `json:"type"`
 	Internal      Internal `json:"internal"`
+}
+
+type FakeWrapper struct {
+	GetAccountIDResponse *ClusterRegistrationResponse
+	GetAccountResponse   *Account
+	GetOrgResponse       *Org
+}
+
+func (f *FakeWrapper) Do(req *http.Request) ([]byte, error) {
+	switch req.URL.String() {
+	case GetAccountIDURL:
+		b, err := json.Marshal(f.GetAccountIDResponse)
+		return b, err
+	case fmt.Sprintf(AccountURL, "123"):
+		b, err := json.Marshal(f.GetAccountResponse)
+		return b, err
+	case fmt.Sprintf(OrgURL, "123"):
+		b, err := json.Marshal(f.GetOrgResponse)
+		return b, err
+	}
+	return nil, fmt.Errorf("FakeClientWrapper failed to handle a case: %s", req.URL.String())
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/redhatinsights/platform-go-middlewares/request_id"
-	"github.com/redhatinsights/uhc-auth-proxy/requests/access"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/cluster"
 )
@@ -38,14 +37,8 @@ func getToken(authorizationHeader string) (string, error) {
 	return strings.TrimPrefix(authorizationHeader, `Bearer `), nil
 }
 
-func getWrapper(accessToken string) client.Wrapper {
-	return &client.HTTPWrapper{
-		Token: accessToken,
-	}
-}
-
 // RootHandler returns a handler that uses the given client and token
-func RootHandler(getWrapper func(string) client.Wrapper, offlineAccessToken string) func(w http.ResponseWriter, r *http.Request) {
+func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		clusterID, err := getClusterID(r.Header.Get("user-agent"))
 		if err != nil {
@@ -63,14 +56,6 @@ func RootHandler(getWrapper func(string) client.Wrapper, offlineAccessToken stri
 			ClusterID:          clusterID,
 			AuthorizationToken: token,
 		}
-
-		accessToken, err := access.GetToken(offlineAccessToken)
-		if err != nil {
-			w.WriteHeader(500)
-			return
-		}
-
-		wrapper := getWrapper(accessToken)
 
 		ident, err := cluster.GetIdentity(wrapper, reg)
 		if err != nil {
@@ -99,7 +84,9 @@ func Start(offlineAccessToken string) {
 		middleware.Recoverer,
 	)
 
-	r.Get("/", RootHandler(getWrapper, offlineAccessToken))
+	r.Get("/", RootHandler(&client.HTTPWrapper{
+		OfflineAccessToken: offlineAccessToken,
+	}))
 
 	srv := http.Server{
 		Addr:    fmt.Sprintf(":3000"),

@@ -1,10 +1,9 @@
-package access
+package client
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 	"sync"
 	"time"
@@ -21,7 +20,6 @@ var token = ""
 var expires = time.Now().Unix()
 
 func fetch(offlineAccessToken string) (*response, error) {
-	client := &http.Client{}
 	resp, err := client.PostForm(URL, url.Values{
 		"grant_type":    {"refresh_token"},
 		"client_id":     {"cloud-services"},

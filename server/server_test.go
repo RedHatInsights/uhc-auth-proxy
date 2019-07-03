@@ -1,8 +1,16 @@
 package server
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
+	"github.com/redhatinsights/uhc-auth-proxy/requests/cluster"
 )
 
 var _ = Describe("Server", func() {
@@ -43,6 +51,78 @@ var _ = Describe("Server", func() {
 			token, err = getClusterID("Bearer: close but no cigar")
 			Expect(token).To(Equal(""))
 			Expect(err).To(Not(BeNil()))
+		})
+	})
+
+})
+
+func call(wrapper client.Wrapper, userAgent string, auth string) (*httptest.ResponseRecorder, *cluster.Identity) {
+	req, err := http.NewRequest("GET", "/", nil)
+	Expect(err).To(BeNil())
+	req.Header.Add("user-agent", userAgent)
+	req.Header.Add("Authorization", auth)
+	rr := httptest.NewRecorder()
+	handler := RootHandler(wrapper)
+	handler(rr, req)
+	out, err := ioutil.ReadAll(rr.Result().Body)
+	Expect(err).To(BeNil())
+	rr.Result().Body.Close()
+	var ident cluster.Identity
+	json.Unmarshal(out, &ident)
+	return rr, &ident
+}
+
+var _ = Describe("Handler", func() {
+
+	var (
+		wrapper            *cluster.FakeWrapper
+		clusterRegResponse *cluster.ClusterRegistrationResponse
+		account            *cluster.Account
+		org                *cluster.Org
+	)
+
+	BeforeEach(func() {
+		clusterRegResponse = &cluster.ClusterRegistrationResponse{
+			AccountID: "123",
+		}
+		account = &cluster.Account{
+			Organization: cluster.Organization{
+				ID: "123",
+			},
+		}
+		org = &cluster.Org{
+			EbsAccountID: "123",
+			ExternalID:   "123",
+		}
+		wrapper = &cluster.FakeWrapper{
+			GetAccountIDResponse: clusterRegResponse,
+			GetAccountResponse:   account,
+			GetOrgResponse:       org,
+		}
+	})
+
+	Describe("When called with a valid request", func() {
+		It("should return a valid Identity json", func() {
+			_, ident := call(wrapper, "support-operator/abc cluster/123", "Bearer mytoken")
+			Expect(ident.AccountNumber).To(Equal("123"))
+			Expect(ident.Internal.OrgID).To(Equal("123"))
+			Expect(ident.Type).To(Equal("System"))
+		})
+	})
+
+	Describe("When called with an invalid user-agent", func() {
+		It("should not return an identity header", func() {
+			rr, ident := call(wrapper, "curl", "Bearer mytoken")
+			Expect(rr.Result().StatusCode).To(Equal(400))
+			Expect(ident).To(Equal(&cluster.Identity{}))
+		})
+	})
+
+	Describe("When called with an invalid auth", func() {
+		It("should not return an identity header", func() {
+			rr, ident := call(wrapper, "support-operator/abc cluster/123", "Bearer: mytoken")
+			Expect(rr.Result().StatusCode).To(Equal(400))
+			Expect(ident).To(Equal(&cluster.Identity{}))
 		})
 	})
 })

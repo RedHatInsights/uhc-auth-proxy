@@ -28,7 +28,7 @@ func GetIdentity(wrapper client.Wrapper, r Registration) (*Identity, error) {
 
 	return &Identity{
 		AccountNumber: or.EbsAccountID,
-		Type:          "system",
+		Type:          "System",
 		Internal: Internal{
 			OrgID: or.ExternalID,
 		},
