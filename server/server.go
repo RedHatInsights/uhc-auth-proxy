@@ -12,6 +12,7 @@ import (
 	"github.com/redhatinsights/platform-go-middlewares/request_id"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/cluster"
+	"github.com/spf13/viper"
 )
 
 // returns the cluster id from the user agent string used by the support operator
@@ -89,7 +90,7 @@ func Start(offlineAccessToken string) {
 	}))
 
 	srv := http.Server{
-		Addr:    fmt.Sprintf(":3000"),
+		Addr:    fmt.Sprintf(":%d", viper.Get("SERVER_PORT")),
 		Handler: r,
 	}
 

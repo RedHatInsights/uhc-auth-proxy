@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 // Registration is the document posted to cluster registration service
@@ -76,13 +78,13 @@ type FakeWrapper struct {
 
 func (f *FakeWrapper) Do(req *http.Request) ([]byte, error) {
 	switch req.URL.String() {
-	case GetAccountIDURL:
+	case viper.GetString("GET_ACCOUNTID_URL"):
 		b, err := json.Marshal(f.GetAccountIDResponse)
 		return b, err
-	case fmt.Sprintf(AccountURL, "123"):
+	case fmt.Sprintf(viper.GetString("ACCOUNT_DETAILS_URL"), "123"):
 		b, err := json.Marshal(f.GetAccountResponse)
 		return b, err
-	case fmt.Sprintf(OrgURL, "123"):
+	case fmt.Sprintf(viper.GetString("ORG_DETAILS_URL"), "123"):
 		b, err := json.Marshal(f.GetOrgResponse)
 		return b, err
 	}

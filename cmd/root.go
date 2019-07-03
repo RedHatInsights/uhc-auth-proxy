@@ -81,6 +81,7 @@ func initConfig() {
 		viper.SetConfigName(".uhc-auth-proxy")
 	}
 
+	viper.SetDefault("SERVER_PORT", 3000)
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
