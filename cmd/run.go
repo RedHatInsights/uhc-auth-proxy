@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/redhatinsights/uhc-auth-proxy/requests/access"
+	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/cluster"
 	"github.com/spf13/cobra"
 )
@@ -38,7 +39,7 @@ required to access the authentication service.`,
 			return
 		}
 
-		wrapper := &cluster.HTTPClientWrapper{
+		wrapper := &client.HTTPWrapper{
 			Token: token,
 		}
 

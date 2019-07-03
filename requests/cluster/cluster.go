@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
 )
 
 // GetIdentity is a facade over all the steps required to get an Identity
-func GetIdentity(wrapper ClientWrapper, r Registration) (*Identity, error) {
+func GetIdentity(wrapper client.Wrapper, r Registration) (*Identity, error) {
 	rr, err := GetAccountID(wrapper, r)
 	if err != nil {
 		return nil, err
@@ -36,7 +38,7 @@ func GetIdentity(wrapper ClientWrapper, r Registration) (*Identity, error) {
 var GetAccountIDURL = "https://api.openshift.com/api/accounts_mgmt/v1/cluster_registrations"
 
 // GetAccountID requests a cluster registration with the given Request
-func GetAccountID(wrapper ClientWrapper, r Registration) (*ClusterRegistrationResponse, error) {
+func GetAccountID(wrapper client.Wrapper, r Registration) (*ClusterRegistrationResponse, error) {
 	body, err := json.Marshal(r)
 	if err != nil {
 		return nil, err
@@ -60,7 +62,7 @@ func GetAccountID(wrapper ClientWrapper, r Registration) (*ClusterRegistrationRe
 var AccountURL = "https://api.openshift.com/api/accounts_mgmt/v1/accounts/%s"
 
 // GetAccount retrieves account details
-func GetAccount(wrapper ClientWrapper, accountID string) (*Account, error) {
+func GetAccount(wrapper client.Wrapper, accountID string) (*Account, error) {
 	req, _ := http.NewRequest("GET", fmt.Sprintf(AccountURL, accountID), nil)
 
 	b, err := wrapper.Do(req)
@@ -78,7 +80,7 @@ func GetAccount(wrapper ClientWrapper, accountID string) (*Account, error) {
 var OrgURL = "https://api.openshift.com/api/accounts_mgmt/v1/organizations/%s"
 
 // GetOrg retrieves organization details
-func GetOrg(wrapper ClientWrapper, orgID string) (*Org, error) {
+func GetOrg(wrapper client.Wrapper, orgID string) (*Org, error) {
 	req, _ := http.NewRequest("GET", fmt.Sprintf(OrgURL, orgID), nil)
 
 	b, err := wrapper.Do(req)

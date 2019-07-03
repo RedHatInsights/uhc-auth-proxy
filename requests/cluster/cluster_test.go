@@ -1,18 +1,43 @@
 package cluster_test
 
 import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	. "github.com/redhatinsights/uhc-auth-proxy/requests/cluster"
 )
 
+type FakeWrapper struct {
+	GetAccountIDResponse *ClusterRegistrationResponse
+	GetAccountResponse   *Account
+	GetOrgResponse       *Org
+}
+
+func (f *FakeWrapper) Do(req *http.Request) ([]byte, error) {
+	switch req.URL.String() {
+	case GetAccountIDURL:
+		b, err := json.Marshal(f.GetAccountIDResponse)
+		return b, err
+	case fmt.Sprintf(AccountURL, "123"):
+		b, err := json.Marshal(f.GetAccountResponse)
+		return b, err
+	case fmt.Sprintf(OrgURL, "123"):
+		b, err := json.Marshal(f.GetOrgResponse)
+		return b, err
+	}
+	return nil, fmt.Errorf("FakeClientWrapper failed to handle a case: %s", req.URL.String())
+}
+
 var _ = Describe("Cluster", func() {
 
 	var (
 		reg                *Registration
 		ident              *Identity
-		wrapper            *FakeClientWrapper
+		wrapper            *FakeWrapper
 		clusterRegResponse *ClusterRegistrationResponse
 		account            *Account
 		org                *Org
@@ -42,7 +67,7 @@ var _ = Describe("Cluster", func() {
 			EbsAccountID: "123",
 			ExternalID:   "123",
 		}
-		wrapper = &FakeClientWrapper{
+		wrapper = &FakeWrapper{
 			GetAccountIDResponse: clusterRegResponse,
 			GetAccountResponse:   account,
 			GetOrgResponse:       org,
