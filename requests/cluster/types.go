@@ -65,9 +65,10 @@ type Internal struct {
 }
 
 type Identity struct {
-	AccountNumber string   `json:"account_number"`
-	Type          string   `json:"type"`
-	Internal      Internal `json:"internal"`
+	AccountNumber string            `json:"account_number"`
+	Type          string            `json:"type"`
+	Internal      Internal          `json:"internal"`
+	System        map[string]string `json:"system,omitempty"`
 }
 
 type FakeWrapper struct {

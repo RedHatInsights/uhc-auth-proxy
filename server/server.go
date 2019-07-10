@@ -100,8 +100,6 @@ func Start(offlineAccessToken string) {
 		middleware.StripSlashes,
 	)
 
-	log.Info(fmt.Sprintf("OAT = %s", offlineAccessToken))
-	log.Info(fmt.Sprintf("all the things = %v", viper.AllSettings()))
 	wrapper := &client.HTTPWrapper{
 		OfflineAccessToken: offlineAccessToken,
 	}

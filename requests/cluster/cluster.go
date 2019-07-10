@@ -36,13 +36,12 @@ func GetIdentity(wrapper client.Wrapper, r Registration) (*Identity, error) {
 		return nil, err
 	}
 
-	log.Info(fmt.Sprintf("rr: %v", rr))
-	log.Info(fmt.Sprintf("rr: %v", ar))
-	log.Info(fmt.Sprintf("rr: %v", or))
-
 	return &Identity{
 		AccountNumber: or.EbsAccountID,
 		Type:          "System",
+		System: map[string]string{
+			"cluster_id": r.ClusterID,
+		},
 		Internal: Internal{
 			OrgID: or.ExternalID,
 		},
