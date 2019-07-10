@@ -17,8 +17,11 @@ import (
 	"go.uber.org/zap"
 )
 
+var log *zap.Logger
+
 func init() {
 	l.InitLogger()
+	log = l.Log.Named("server")
 }
 
 // returns the cluster id from the user agent string used by the support operator
@@ -49,14 +52,14 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 	return func(w http.ResponseWriter, r *http.Request) {
 		clusterID, err := getClusterID(r.Header.Get("user-agent"))
 		if err != nil {
-			l.Log.Error("Failed to get the cluster id", zap.Error(err))
+			log.Error("Failed to get the cluster id", zap.Error(err))
 			w.WriteHeader(400)
 			return
 		}
 
 		token, err := getToken(r.Header.Get("Authorization"))
 		if err != nil {
-			l.Log.Error("Failed to get the token", zap.Error(err))
+			log.Error("Failed to get the token", zap.Error(err))
 			w.WriteHeader(400)
 			return
 		}
@@ -68,14 +71,14 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		ident, err := cluster.GetIdentity(wrapper, reg)
 		if err != nil {
-			l.Log.Error("could not authenticate given the credentials", zap.Error(err))
+			log.Error("could not authenticate given the credentials", zap.Error(err))
 			w.WriteHeader(401)
 			return
 		}
 
 		b, err := json.Marshal(ident)
 		if err != nil {
-			l.Log.Error("Failed to marshal identity", zap.Error(err))
+			log.Error("Failed to marshal identity", zap.Error(err))
 			w.WriteHeader(400)
 			return
 		}
@@ -86,6 +89,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 	}
 }
 
+// Start starts the server
 func Start(offlineAccessToken string) {
 	r := chi.NewRouter()
 	r.Use(
@@ -99,12 +103,16 @@ func Start(offlineAccessToken string) {
 		OfflineAccessToken: offlineAccessToken,
 	}))
 
+	port := viper.GetInt64("SERVER_PORT")
+
+	log.Info(fmt.Sprintf("Starting server on port %d", port))
+
 	srv := http.Server{
-		Addr:    fmt.Sprintf(":%d", viper.GetInt64("SERVER_PORT")),
+		Addr:    fmt.Sprintf(":%d", port),
 		Handler: r,
 	}
 
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-		fmt.Printf("server closed with error: %v\n", err)
+		log.Error("server closed with error", zap.Error(err))
 	}
 }

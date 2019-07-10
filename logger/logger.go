@@ -2,6 +2,7 @@ package logger
 
 import (
 	"flag"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -36,6 +37,7 @@ func InitLogger() *zap.Logger {
 			OutputPaths:      []string{"stdout"},
 			ErrorOutputPaths: []string{"stderr"},
 			EncoderConfig:    cfg,
+			InitialFields:    map[string]interface{}{"app": "uhc-auth-proxy"},
 		}.Build()
 
 		defer logger.Sync()
