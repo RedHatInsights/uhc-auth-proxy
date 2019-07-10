@@ -97,11 +97,17 @@ func Start(offlineAccessToken string) {
 		middleware.RealIP,
 		middleware.Logger,
 		middleware.Recoverer,
+		middleware.StripSlashes,
 	)
 
-	r.Get("/", RootHandler(&client.HTTPWrapper{
+	wrapper := &client.HTTPWrapper{
 		OfflineAccessToken: offlineAccessToken,
-	}))
+	}
+
+	handler := RootHandler(wrapper)
+
+	r.Get("/", handler)
+	r.Get("/api/uhc-auth-proxy/v1", handler)
 
 	port := viper.GetInt64("SERVER_PORT")
 

@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
-var client = &http.Client{}
+var client = &http.Client{
+	Timeout: 5 * time.Second,
+}
 
 // HTTPWrapper manages the headers and auth required to speak
 // with the auth service.  It also provides a convenience method

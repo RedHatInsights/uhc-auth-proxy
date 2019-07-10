@@ -10,7 +10,7 @@ import (
 // Log is an instance of the global zap.Logger
 var Log *zap.Logger
 
-// InitLogger initializes the Entitlements API logger
+// InitLogger initializes the logger
 func InitLogger() *zap.Logger {
 	if Log == nil {
 		logLevel := zapcore.InfoLevel
