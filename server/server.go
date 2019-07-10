@@ -100,6 +100,7 @@ func Start(offlineAccessToken string) {
 		middleware.StripSlashes,
 	)
 
+	log.Info(fmt.Sprintf("OAT = %s", offlineAccessToken))
 	wrapper := &client.HTTPWrapper{
 		OfflineAccessToken: offlineAccessToken,
 	}
