@@ -100,7 +100,7 @@ func Start(offlineAccessToken string) {
 	}))
 
 	srv := http.Server{
-		Addr:    fmt.Sprintf(":%d", viper.Get("SERVER_PORT")),
+		Addr:    fmt.Sprintf(":%d", viper.GetInt64("SERVER_PORT")),
 		Handler: r,
 	}
 
