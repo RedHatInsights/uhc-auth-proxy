@@ -6,9 +6,17 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/spf13/viper"
+	l "github.com/redhatinsights/uhc-auth-proxy/logger"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
+
+var log *zap.Logger
+
+func init() {
+	log = l.Log.Named("cluster")
+}
 
 // GetIdentity is a facade over all the steps required to get an Identity
 func GetIdentity(wrapper client.Wrapper, r Registration) (*Identity, error) {
@@ -26,6 +34,10 @@ func GetIdentity(wrapper client.Wrapper, r Registration) (*Identity, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Info(fmt.Sprintf("rr: %v", rr))
+	log.Info(fmt.Sprintf("rr: %v", ar))
+	log.Info(fmt.Sprintf("rr: %v", or))
 
 	return &Identity{
 		AccountNumber: or.EbsAccountID,
@@ -78,7 +90,6 @@ func GetAccount(wrapper client.Wrapper, accountID string) (*Account, error) {
 	}
 	return res, nil
 }
-
 
 // GetOrg retrieves organization details
 func GetOrg(wrapper client.Wrapper, orgID string) (*Org, error) {
