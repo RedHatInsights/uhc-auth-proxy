@@ -7,7 +7,3 @@ func init() {
 	viper.SetDefault("ACCOUNT_DETAILS_URL", "https://api.openshift.com/api/accounts_mgmt/v1/accounts/%s")
 	viper.SetDefault("ORG_DETAILS_URL", "https://api.openshift.com/api/accounts_mgmt/v1/organizations/%s")
 }
-
-var GetAccountIDURL = viper.GetString("GET_ACCOUNTID_URL")
-var AccountURL = viper.GetString("ACCOUNT_DETAILS_URL")
-var OrgURL = viper.GetString("ORG_DETAILS_URL")

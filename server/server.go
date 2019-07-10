@@ -10,10 +10,16 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/redhatinsights/platform-go-middlewares/request_id"
+	l "github.com/redhatinsights/uhc-auth-proxy/logger"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/cluster"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
+
+func init() {
+	l.InitLogger()
+}
 
 // returns the cluster id from the user agent string used by the support operator
 // support-operator/commit cluster/cluster_id
@@ -43,12 +49,14 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 	return func(w http.ResponseWriter, r *http.Request) {
 		clusterID, err := getClusterID(r.Header.Get("user-agent"))
 		if err != nil {
+			l.Log.Error("Failed to get the cluster id", zap.Error(err))
 			w.WriteHeader(400)
 			return
 		}
 
 		token, err := getToken(r.Header.Get("Authorization"))
 		if err != nil {
+			l.Log.Error("Failed to get the token", zap.Error(err))
 			w.WriteHeader(400)
 			return
 		}
@@ -60,12 +68,14 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		ident, err := cluster.GetIdentity(wrapper, reg)
 		if err != nil {
+			l.Log.Error("could not authenticate given the credentials", zap.Error(err))
 			w.WriteHeader(401)
 			return
 		}
 
 		b, err := json.Marshal(ident)
 		if err != nil {
+			l.Log.Error("Failed to marshal identity", zap.Error(err))
 			w.WriteHeader(400)
 			return
 		}
