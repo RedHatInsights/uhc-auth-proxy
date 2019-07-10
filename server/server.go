@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -29,11 +28,11 @@ func init() {
 func getClusterID(userAgent string) (string, error) {
 	spl := strings.SplitN(userAgent, " ", 2)
 	if !strings.HasPrefix(spl[0], `support-operator/`) {
-		return "", errors.New("Invalid user-agent")
+		return "", fmt.Errorf("Invalid user-agent: %s", userAgent)
 	}
 
 	if !strings.HasPrefix(spl[1], `cluster/`) {
-		return "", errors.New("Invalid user-agent")
+		return "", fmt.Errorf("Invalid user-agent: %s", userAgent)
 	}
 
 	return strings.TrimPrefix(spl[1], `cluster/`), nil
