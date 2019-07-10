@@ -15,6 +15,7 @@ import (
 var log *zap.Logger
 
 func init() {
+	l.InitLogger()
 	log = l.Log.Named("cluster")
 }
 
