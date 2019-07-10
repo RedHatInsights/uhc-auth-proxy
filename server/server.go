@@ -84,6 +84,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(200)
+		log.Info(fmt.Sprintf("Responding with: %s", b))
 		w.Write(b)
 	}
 }
