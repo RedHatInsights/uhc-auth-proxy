@@ -91,3 +91,9 @@ func (f *FakeWrapper) Do(req *http.Request) ([]byte, error) {
 	}
 	return nil, fmt.Errorf("FakeClientWrapper failed to handle a case: %s", req.URL.String())
 }
+
+type ErrorWrapper struct{}
+
+func (e *ErrorWrapper) Do(req *http.Request) ([]byte, error) {
+	return nil, fmt.Errorf("errWrapper for: %s", req.URL.String())
+}

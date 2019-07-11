@@ -13,6 +13,7 @@ var _ = Describe("Cluster", func() {
 		reg                *Registration
 		ident              *Identity
 		wrapper            *FakeWrapper
+		errWrapper		   *ErrorWrapper
 		clusterRegResponse *ClusterRegistrationResponse
 		account            *Account
 		org                *Org
@@ -28,6 +29,9 @@ var _ = Describe("Cluster", func() {
 			Type:          "System",
 			Internal: Internal{
 				OrgID: "123",
+			},
+			System: map[string]string{
+				"cluster_id": "test",
 			},
 		}
 		clusterRegResponse = &ClusterRegistrationResponse{
@@ -47,6 +51,7 @@ var _ = Describe("Cluster", func() {
 			GetAccountResponse:   account,
 			GetOrgResponse:       org,
 		}
+		errWrapper = &ErrorWrapper{}
 	})
 
 	Describe("Cache.Get with a nonexistant key", func() {
@@ -91,6 +96,14 @@ var _ = Describe("Cluster", func() {
 	Describe("GetIdentity with a valid Registration", func() {
 		It("should return a proper Identity", func() {
 			Expect(GetIdentity(wrapper, *reg)).To(Equal(ident))
+		})
+	})
+
+	Describe("When GetIdentity gets an error from wrapper.Do", func() {
+		It("should return the error", func() {
+			i, err := GetIdentity(errWrapper, *reg)
+			Expect(err).To(Not(BeNil()))
+			Expect(i).To(BeNil())
 		})
 	})
 })

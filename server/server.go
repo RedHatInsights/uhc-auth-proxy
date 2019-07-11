@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -9,6 +10,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/redhatinsights/platform-go-middlewares/request_id"
+	"github.com/redhatinsights/uhc-auth-proxy/cache"
 	l "github.com/redhatinsights/uhc-auth-proxy/logger"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/cluster"
@@ -46,6 +48,13 @@ func getToken(authorizationHeader string) (string, error) {
 	return strings.TrimPrefix(authorizationHeader, `Bearer `), nil
 }
 
+func makeKey(r cluster.Registration) (string, error) {
+	if r.ClusterID != "" && r.AuthorizationToken != "" {
+		return fmt.Sprintf("%s:%s", r.ClusterID, r.AuthorizationToken), nil
+	}
+	return "", errors.New("cannot make a key with an incomplete cluster.Registration struct")
+}
+
 // RootHandler returns a handler that uses the given client and token
 func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -68,24 +77,34 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 			AuthorizationToken: token,
 		}
 
-		ident, err := cluster.GetIdentity(wrapper, reg)
+		key, err := makeKey(reg)
 		if err != nil {
-			log.Error("could not authenticate given the credentials", zap.Error(err))
-			w.WriteHeader(401)
-			return
-		}
-
-		b, err := json.Marshal(ident)
-		if err != nil {
-			log.Error("Failed to marshal identity", zap.Error(err))
+			log.Error("could not form a valid cluster registration object", zap.Error(err))
 			w.WriteHeader(400)
 			return
+		}
+		out := cache.Get(key)
+
+		if out == nil {
+			ident, err := cluster.GetIdentity(wrapper, reg)
+			if err != nil {
+				log.Error("could not authenticate given the credentials", zap.Error(err))
+				w.WriteHeader(401)
+				return
+			}
+
+			out, err = json.Marshal(ident)
+			if err != nil {
+				log.Error("Failed to marshal identity", zap.Error(err))
+				w.WriteHeader(400)
+				return
+			}
+			cache.Set(key, out)
 		}
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(200)
-		log.Info(fmt.Sprintf("Responding with: %s", b))
-		w.Write(b)
+		w.Write(out)
 	}
 }
 

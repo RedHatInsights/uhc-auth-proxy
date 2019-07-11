@@ -39,10 +39,10 @@ func (c *HTTPWrapper) Do(req *http.Request) ([]byte, error) {
 	}
 	c.AddHeaders(req, token)
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
 		return nil, fmt.Errorf("request to %s failed: %d %s", req.RequestURI, resp.StatusCode, resp.Status)

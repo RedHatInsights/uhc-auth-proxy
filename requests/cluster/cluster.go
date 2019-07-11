@@ -23,16 +23,19 @@ func init() {
 func GetIdentity(wrapper client.Wrapper, r Registration) (*Identity, error) {
 	rr, err := GetAccountID(wrapper, r)
 	if err != nil {
+		fmt.Printf("got an err when calling GetAccountID: %s\n", err)
 		return nil, err
 	}
 
 	ar, err := GetAccount(wrapper, rr.AccountID)
 	if err != nil {
+		fmt.Printf("got an err when calling GetAccount: %s\n", err)
 		return nil, err
 	}
 
 	or, err := GetOrg(wrapper, ar.Organization.ID)
 	if err != nil {
+		fmt.Printf("got an err when calling GetOrg: %s\n", err)
 		return nil, err
 	}
 
