@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
-var client = &http.Client{}
+var client = &http.Client{
+	Timeout: 5 * time.Second,
+}
 
 // HTTPWrapper manages the headers and auth required to speak
 // with the auth service.  It also provides a convenience method
@@ -39,9 +42,13 @@ func (c *HTTPWrapper) Do(req *http.Request) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("request to %s failed: %d %s", req.RequestURI, resp.StatusCode, resp.Status)
+	}
 
 	b, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 // Registration is the document posted to cluster registration service
@@ -63,9 +65,10 @@ type Internal struct {
 }
 
 type Identity struct {
-	AccountNumber string   `json:"account_number"`
-	Type          string   `json:"type"`
-	Internal      Internal `json:"internal"`
+	AccountNumber string            `json:"account_number"`
+	Type          string            `json:"type"`
+	Internal      Internal          `json:"internal"`
+	System        map[string]string `json:"system,omitempty"`
 }
 
 type FakeWrapper struct {
@@ -76,15 +79,21 @@ type FakeWrapper struct {
 
 func (f *FakeWrapper) Do(req *http.Request) ([]byte, error) {
 	switch req.URL.String() {
-	case GetAccountIDURL:
+	case viper.GetString("GET_ACCOUNTID_URL"):
 		b, err := json.Marshal(f.GetAccountIDResponse)
 		return b, err
-	case fmt.Sprintf(AccountURL, "123"):
+	case fmt.Sprintf(viper.GetString("ACCOUNT_DETAILS_URL"), "123"):
 		b, err := json.Marshal(f.GetAccountResponse)
 		return b, err
-	case fmt.Sprintf(OrgURL, "123"):
+	case fmt.Sprintf(viper.GetString("ORG_DETAILS_URL"), "123"):
 		b, err := json.Marshal(f.GetOrgResponse)
 		return b, err
 	}
 	return nil, fmt.Errorf("FakeClientWrapper failed to handle a case: %s", req.URL.String())
+}
+
+type ErrorWrapper struct{}
+
+func (e *ErrorWrapper) Do(req *http.Request) ([]byte, error) {
+	return nil, fmt.Errorf("errWrapper for: %s", req.URL.String())
 }

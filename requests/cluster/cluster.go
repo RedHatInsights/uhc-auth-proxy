@@ -6,36 +6,50 @@ import (
 	"fmt"
 	"net/http"
 
+	l "github.com/redhatinsights/uhc-auth-proxy/logger"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
+
+var log *zap.Logger
+
+func init() {
+	l.InitLogger()
+	log = l.Log.Named("cluster")
+}
 
 // GetIdentity is a facade over all the steps required to get an Identity
 func GetIdentity(wrapper client.Wrapper, r Registration) (*Identity, error) {
 	rr, err := GetAccountID(wrapper, r)
 	if err != nil {
+		fmt.Printf("got an err when calling GetAccountID: %s\n", err)
 		return nil, err
 	}
 
 	ar, err := GetAccount(wrapper, rr.AccountID)
 	if err != nil {
+		fmt.Printf("got an err when calling GetAccount: %s\n", err)
 		return nil, err
 	}
 
 	or, err := GetOrg(wrapper, ar.Organization.ID)
 	if err != nil {
+		fmt.Printf("got an err when calling GetOrg: %s\n", err)
 		return nil, err
 	}
 
 	return &Identity{
 		AccountNumber: or.EbsAccountID,
 		Type:          "System",
+		System: map[string]string{
+			"cluster_id": r.ClusterID,
+		},
 		Internal: Internal{
 			OrgID: or.ExternalID,
 		},
 	}, nil
 }
-
-var GetAccountIDURL = "https://api.openshift.com/api/accounts_mgmt/v1/cluster_registrations"
 
 // GetAccountID requests a cluster registration with the given Request
 func GetAccountID(wrapper client.Wrapper, r Registration) (*ClusterRegistrationResponse, error) {
@@ -45,7 +59,11 @@ func GetAccountID(wrapper client.Wrapper, r Registration) (*ClusterRegistrationR
 	}
 
 	buf := bytes.NewBuffer(body)
-	req, err := http.NewRequest("POST", GetAccountIDURL, buf)
+	URL := viper.GetString("GET_ACCOUNTID_URL")
+	req, err := http.NewRequest("POST", URL, buf)
+	if err != nil {
+		return nil, err
+	}
 
 	b, err := wrapper.Do(req)
 	if err != nil {
@@ -59,11 +77,10 @@ func GetAccountID(wrapper client.Wrapper, r Registration) (*ClusterRegistrationR
 	return res, nil
 }
 
-var AccountURL = "https://api.openshift.com/api/accounts_mgmt/v1/accounts/%s"
-
 // GetAccount retrieves account details
 func GetAccount(wrapper client.Wrapper, accountID string) (*Account, error) {
-	req, _ := http.NewRequest("GET", fmt.Sprintf(AccountURL, accountID), nil)
+	URL := viper.GetString("ACCOUNT_DETAILS_URL")
+	req, _ := http.NewRequest("GET", fmt.Sprintf(URL, accountID), nil)
 
 	b, err := wrapper.Do(req)
 	if err != nil {
@@ -77,11 +94,10 @@ func GetAccount(wrapper client.Wrapper, accountID string) (*Account, error) {
 	return res, nil
 }
 
-var OrgURL = "https://api.openshift.com/api/accounts_mgmt/v1/organizations/%s"
-
 // GetOrg retrieves organization details
 func GetOrg(wrapper client.Wrapper, orgID string) (*Org, error) {
-	req, _ := http.NewRequest("GET", fmt.Sprintf(OrgURL, orgID), nil)
+	URL := viper.GetString("ORG_DETAILS_URL")
+	req, _ := http.NewRequest("GET", fmt.Sprintf(URL, orgID), nil)
 
 	b, err := wrapper.Do(req)
 	if err != nil {

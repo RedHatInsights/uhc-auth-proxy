@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"sync"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 type response struct {
@@ -14,13 +16,12 @@ type response struct {
 	ExpiresIn   int64  `json:"expires_in"`
 }
 
-var URL = "https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
 var mutex = &sync.Mutex{}
 var token = ""
 var expires = time.Now().Unix()
 
 func fetch(offlineAccessToken string) (*response, error) {
-	resp, err := client.PostForm(URL, url.Values{
+	resp, err := client.PostForm(viper.GetString("ACCESS_TOKEN_URL"), url.Values{
 		"grant_type":    {"refresh_token"},
 		"client_id":     {"cloud-services"},
 		"refresh_token": {offlineAccessToken},

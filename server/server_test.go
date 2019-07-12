@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/redhatinsights/uhc-auth-proxy/cache"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/cluster"
 )
@@ -72,6 +73,23 @@ func call(wrapper client.Wrapper, userAgent string, auth string) (*httptest.Resp
 	return rr, &ident
 }
 
+var _ = Describe("HandlerWithBadWrapper", func() {
+	var errWrapper *cluster.ErrorWrapper
+
+	BeforeEach(func() {
+		errWrapper = &cluster.ErrorWrapper{}
+		cache.Clear()
+	})
+
+	Describe("When GetIdentity fails", func() {
+		It("should return an error", func() {
+			rr, ident := call(errWrapper, "support-operator/abc cluster/123", "Bearer errmytoken")
+			Expect(rr.Result().StatusCode).To(Equal(401))
+			Expect(ident).To(Equal(&cluster.Identity{}))
+		})
+	})
+})
+
 var _ = Describe("Handler", func() {
 
 	var (
@@ -99,6 +117,7 @@ var _ = Describe("Handler", func() {
 			GetAccountResponse:   account,
 			GetOrgResponse:       org,
 		}
+		cache.Clear()
 	})
 
 	Describe("When called with a valid request", func() {
@@ -123,6 +142,37 @@ var _ = Describe("Handler", func() {
 			rr, ident := call(wrapper, "support-operator/abc cluster/123", "Bearer: mytoken")
 			Expect(rr.Result().StatusCode).To(Equal(400))
 			Expect(ident).To(Equal(&cluster.Identity{}))
+		})
+	})
+
+	Describe("When called with empty auth", func() {
+		It("should return an error", func() {
+			rr, ident := call(wrapper, "support-operator/abc cluster/123", "Bearer ")
+			Expect(rr.Result().StatusCode).To(Equal(400))
+			Expect(ident).To(Equal(&cluster.Identity{}))
+		})
+	})
+})
+
+var _ = Describe("ClusterRegistration", func() {
+	Describe("When a valid ClusterRegistration is converted to a key", func() {
+		It("should produce a well-formed key", func() {
+			r := cluster.Registration{
+				ClusterID:          "123",
+				AuthorizationToken: "abc",
+			}
+			key, err := makeKey(r)
+			Expect(err).To(BeNil())
+			Expect(key).To(Equal("123:abc"))
+		})
+	})
+
+	Describe("When an empty cluster.Registration is converted to a key", func() {
+		It("should produce an error", func() {
+			r := cluster.Registration{}
+			key, err := makeKey(r)
+			Expect(err).To(Not(BeNil()))
+			Expect(key).To(Equal(""))
 		})
 	})
 })
