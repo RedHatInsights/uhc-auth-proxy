@@ -43,12 +43,14 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		clusterID, err := getClusterID(r.Header.Get("user-agent"))
 		if err != nil {
 			w.WriteHeader(400)
+			fmt.Fprintf(w, "Invalid user-agent: '%s'", err.Error())
 			return
 		}
 
 		token, err := getToken(r.Header.Get("Authorization"))
 		if err != nil {
 			w.WriteHeader(400)
+			fmt.Fprintf(w, "Invalid authorization header: '%s'", err.Error())
 			return
 		}
 
@@ -60,12 +62,14 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		ident, err := cluster.GetIdentity(wrapper, reg)
 		if err != nil {
 			w.WriteHeader(401)
+			fmt.Fprintf(w, "Unable to get identity: '%s'", err.Error())
 			return
 		}
 
 		b, err := json.Marshal(ident)
 		if err != nil {
-			w.WriteHeader(400)
+			w.WriteHeader(500)
+			fmt.Fprintf(w, "Unable to read identity returned by cluster manager: '%s' ", err.Error())
 			return
 		}
 
