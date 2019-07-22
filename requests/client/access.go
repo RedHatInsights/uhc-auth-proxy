@@ -47,16 +47,15 @@ func fetch(offlineAccessToken string) (*response, error) {
 // GetToken retrieves an access token from cache or the sso service
 func GetToken(offlineAccessToken string) (string, error) {
 	now := time.Now().Unix()
+	mutex.Lock()
+	defer mutex.Unlock()
 	if now >= expires || token == "" {
 		r, err := fetch(offlineAccessToken)
 		if err != nil {
 			return "", err
 		}
-
-		mutex.Lock()
 		token = r.AccessToken
 		expires = now + r.ExpiresIn
-		mutex.Unlock()
 	}
 	return token, nil
 }
