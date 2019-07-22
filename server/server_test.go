@@ -148,7 +148,7 @@ var _ = Describe("Handler", func() {
 	Describe("When called with empty auth", func() {
 		It("should return an error", func() {
 			rr, ident := call(wrapper, "support-operator/abc cluster/123", "Bearer ")
-			Expect(rr.Result().StatusCode).To(Equal(400))
+			Expect(rr.Result().StatusCode).To(Equal(500))
 			Expect(ident).To(Equal(&cluster.Identity{}))
 		})
 	})

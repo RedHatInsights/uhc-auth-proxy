@@ -62,6 +62,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		if err != nil {
 			log.Error("Failed to get the cluster id", zap.Error(err))
 			w.WriteHeader(400)
+			fmt.Fprintf(w, "Invalid user-agent: '%s'", err.Error())
 			return
 		}
 
@@ -69,6 +70,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		if err != nil {
 			log.Error("Failed to get the token", zap.Error(err))
 			w.WriteHeader(400)
+			fmt.Fprintf(w, "Invalid authorization header: '%s'", err.Error())
 			return
 		}
 
@@ -80,7 +82,8 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		key, err := makeKey(reg)
 		if err != nil {
 			log.Error("could not form a valid cluster registration object", zap.Error(err))
-			w.WriteHeader(400)
+			w.WriteHeader(500)
+			fmt.Fprintf(w, "Could not form valid cluster registration object: '%s'", err.Error())
 			return
 		}
 		out := cache.Get(key)
@@ -90,13 +93,15 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 			if err != nil {
 				log.Error("could not authenticate given the credentials", zap.Error(err))
 				w.WriteHeader(401)
+				fmt.Fprintf(w, "Could not authenticate: '%s'", err.Error())
 				return
 			}
 
 			out, err = json.Marshal(ident)
 			if err != nil {
 				log.Error("Failed to marshal identity", zap.Error(err))
-				w.WriteHeader(400)
+				w.WriteHeader(500)
+				fmt.Fprintf(w, "Unable to read identity: '%s'", err.Error())
 				return
 			}
 			cache.Set(key, out)
