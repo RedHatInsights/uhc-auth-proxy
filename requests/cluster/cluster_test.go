@@ -13,7 +13,7 @@ var _ = Describe("Cluster", func() {
 		reg                *Registration
 		ident              *Identity
 		wrapper            *FakeWrapper
-		errWrapper		   *ErrorWrapper
+		errWrapper         *ErrorWrapper
 		clusterRegResponse *ClusterRegistrationResponse
 		account            *Account
 		org                *Org
@@ -52,27 +52,6 @@ var _ = Describe("Cluster", func() {
 			GetOrgResponse:       org,
 		}
 		errWrapper = &ErrorWrapper{}
-	})
-
-	Describe("Cache.Get with a nonexistant key", func() {
-		It("should return nil", func() {
-			Expect(Cache.Get(reg)).To(BeNil())
-		})
-	})
-
-	Describe("Cache.Get with an expired key", func() {
-		It("should return nil", func() {
-			short := NewTimedCache(0)
-			short.Set(reg, ident)
-			Expect(short.Get(reg)).To(BeNil())
-		})
-	})
-
-	Describe("Cache.Get with a valid key", func() {
-		It("should return the cached Identity", func() {
-			Cache.Set(reg, ident)
-			Expect(Cache.Get(reg)).To(Equal(ident))
-		})
 	})
 
 	Describe("GetAccountID with valid Registration", func() {
