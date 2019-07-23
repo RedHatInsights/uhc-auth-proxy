@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: uhc-auth-proxy-template
+parameters:
+- name: REGISTRY_IMG
+  required: true
+- name: CHANNEL
+  value: staging
+- name: IMAGE_TAG
+  value: latest
+objects:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: uhc-auth-proxy
+    name: uhc-auth-proxy
+  spec:
+    replicas: 1
+    selector:
+      app: uhc-auth-proxy
+      deploymentconfig: uhc-auth-proxy
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: uhc-auth-proxy
+          deploymentconfig: uhc-auth-proxy
+      spec:
+        containers:
+        - env:
+          - name: OAT
+            valueFrom:
+              secretKeyRef:
+                key: offline_access_token
+                name: uhc-auth-proxy-secret
+          - name: SERVER_PORT
+            value: "8080"
+          image: ${REGISTRY_IMG}:${IMAGE_TAG}
+          imagePullPolicy: Always
+          name: uhc-auth-proxy
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        imagePullSecrets:
+        - name: cloudservices-buildfactory-pull-secret
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
