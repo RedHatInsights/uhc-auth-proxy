@@ -152,6 +152,22 @@ var _ = Describe("Handler", func() {
 			Expect(ident).To(Equal(&cluster.Identity{}))
 		})
 	})
+
+	Describe("When account_number is empty", func() {
+		It("should return a -1 account number", func() {
+			wr := &cluster.FakeWrapper{
+				GetAccountIDResponse: clusterRegResponse,
+				GetAccountResponse:   account,
+				GetOrgResponse: &cluster.Org{
+					EbsAccountID: "",
+					ExternalID:   "123",
+				},
+			}
+			rr, ident := call(wr, "support-operator/abc cluster/123", "Bearer mytoken")
+			Expect(rr.Result().StatusCode).To(Equal(200))
+			Expect(ident.AccountNumber).To(Equal("-1"))
+		})
+	})
 })
 
 var _ = Describe("ClusterRegistration", func() {
