@@ -97,12 +97,6 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 				return
 			}
 
-			// empty account_number is invalid and will be rejected
-			// -1 is a workaround
-			if ident.AccountNumber == "" {
-				ident.AccountNumber = "-1"
-			}
-
 			out, err = json.Marshal(ident)
 			if err != nil {
 				log.Error("Failed to marshal identity", zap.Error(err))
