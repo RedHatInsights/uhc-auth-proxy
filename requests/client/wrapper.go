@@ -5,11 +5,25 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
-var client = &http.Client{
-	Timeout: 5 * time.Second,
-}
+var (
+	client = &http.Client{
+		Timeout: 5 * time.Second,
+	}
+	requestTimes = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name: "uhc_auth_proxy_request_time",
+		Help: "Time spent waiting per request per url",
+		Buckets: []float64{
+			10,
+			100,
+			1000,
+		},
+	}, []string{"url"})
+)
 
 // HTTPWrapper manages the headers and auth required to speak
 // with the auth service.  It also provides a convenience method
@@ -38,7 +52,9 @@ func (c *HTTPWrapper) Do(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 	c.AddHeaders(req, token)
+	start := time.Now()
 	resp, err := client.Do(req)
+	requestTimes.With(prometheus.Labels{"url": req.RequestURI}).Observe(time.Since(start).Seconds())
 	if err != nil {
 		return nil, err
 	}

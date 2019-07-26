@@ -9,6 +9,9 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redhatinsights/platform-go-middlewares/request_id"
 	"github.com/redhatinsights/uhc-auth-proxy/cache"
 	l "github.com/redhatinsights/uhc-auth-proxy/logger"
@@ -24,6 +27,21 @@ func init() {
 	l.InitLogger()
 	log = l.Log.Named("server")
 }
+
+var (
+	cacheHit = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "uhc_auth_proxy_cache_hit",
+		Help: "Total number of cache hits",
+	})
+	cacheMiss = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "uhc_auth_proxy_cache_miss",
+		Help: "Total number of cache misses",
+	})
+	responseMetrics = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "uhc_auth_proxy_responses",
+		Help: "Count of responses by code",
+	}, []string{"code"})
+)
 
 // returns the cluster id from the user agent string used by the support operator
 // support-operator/commit cluster/cluster_id
@@ -58,10 +76,16 @@ func makeKey(r cluster.Registration) (string, error) {
 // RootHandler returns a handler that uses the given client and token
 func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		var respond = func(code int) {
+			w.WriteHeader(code)
+			responseMetrics.With(prometheus.Labels{"code": string(code)}).Inc()
+		}
+
 		clusterID, err := getClusterID(r.Header.Get("user-agent"))
 		if err != nil {
 			log.Error("Failed to get the cluster id", zap.Error(err))
-			w.WriteHeader(400)
+			respond(400)
 			fmt.Fprintf(w, "Invalid user-agent: '%s'", err.Error())
 			return
 		}
@@ -69,7 +93,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		token, err := getToken(r.Header.Get("Authorization"))
 		if err != nil {
 			log.Error("Failed to get the token", zap.Error(err))
-			w.WriteHeader(400)
+			respond(400)
 			fmt.Fprintf(w, "Invalid authorization header: '%s'", err.Error())
 			return
 		}
@@ -82,17 +106,22 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		key, err := makeKey(reg)
 		if err != nil {
 			log.Error("could not form a valid cluster registration object", zap.Error(err))
-			w.WriteHeader(500)
+			respond(500)
 			fmt.Fprintf(w, "Could not form valid cluster registration object: '%s'", err.Error())
 			return
 		}
 		out := cache.Get(key)
 
+		if out != nil {
+			cacheHit.Inc()
+		}
+
 		if out == nil {
+			cacheMiss.Inc()
 			ident, err := cluster.GetIdentity(wrapper, reg)
 			if err != nil {
 				log.Error("could not authenticate given the credentials", zap.Error(err))
-				w.WriteHeader(401)
+				respond(401)
 				fmt.Fprintf(w, "Could not authenticate: '%s'", err.Error())
 				return
 			}
@@ -100,7 +129,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 			out, err = json.Marshal(ident)
 			if err != nil {
 				log.Error("Failed to marshal identity", zap.Error(err))
-				w.WriteHeader(500)
+				respond(500)
 				fmt.Fprintf(w, "Unable to read identity: '%s'", err.Error())
 				return
 			}
@@ -108,7 +137,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		}
 
 		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(200)
+		respond(200)
 		w.Write(out)
 	}
 }
@@ -132,6 +161,7 @@ func Start(offlineAccessToken string) {
 
 	r.Get("/", handler)
 	r.Get("/api/uhc-auth-proxy/v1", handler)
+	r.Handle("/metrics", promhttp.Handler())
 
 	port := viper.GetInt64("SERVER_PORT")
 
