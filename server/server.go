@@ -142,8 +142,11 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 	}
 }
 
-// Start starts the server
-func Start(offlineAccessToken string) {
+func healthz(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func GetRoutes() chi.Router {
 	r := chi.NewRouter()
 	r.Use(
 		request_id.ConfiguredRequestID("x-rh-insights-request-id"),
@@ -152,16 +155,23 @@ func Start(offlineAccessToken string) {
 		middleware.Recoverer,
 		middleware.StripSlashes,
 	)
+	r.Get("/healthz", healthz)
+	r.Handle("/metrics", promhttp.Handler())
+	return r
+}
 
+// Start starts the server
+func Start(offlineAccessToken string) {
 	wrapper := &client.HTTPWrapper{
 		OfflineAccessToken: offlineAccessToken,
 	}
 
 	handler := RootHandler(wrapper)
 
+	r := GetRoutes()
+
 	r.Get("/", handler)
 	r.Get("/api/uhc-auth-proxy/v1", handler)
-	r.Handle("/metrics", promhttp.Handler())
 
 	port := viper.GetInt64("SERVER_PORT")
 

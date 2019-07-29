@@ -152,6 +152,18 @@ var _ = Describe("Handler", func() {
 			Expect(ident).To(Equal(&cluster.Identity{}))
 		})
 	})
+
+	Describe("When /healthz endpoint is called", func() {
+		It("should responde 200 OK", func() {
+			ts := httptest.NewServer(GetRoutes())
+			defer ts.Close()
+			req, err := http.NewRequest("GET", ts.URL+"/healthz", nil)
+			Expect(err).To(BeNil())
+			resp, err := http.DefaultClient.Do(req)
+			Expect(err).To(BeNil())
+			Expect(resp.StatusCode).To(Equal(200))
+		})
+	})
 })
 
 var _ = Describe("ClusterRegistration", func() {
