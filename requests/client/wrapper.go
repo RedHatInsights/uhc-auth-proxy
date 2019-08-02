@@ -5,14 +5,14 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/spf13/viper"
 )
 
 var (
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: viper.GetDuration("TIMEOUT_SECONDS") * time.Second,
 	}
 	requestTimes = promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Name: "uhc_auth_proxy_request_time",
