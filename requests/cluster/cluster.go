@@ -39,6 +39,8 @@ func GetIdentity(wrapper client.Wrapper, r Registration) (*Identity, error) {
 		return nil, err
 	}
 
+	log.Info("Got all three parts", zap.Reflect("account_id", rr), zap.Reflect("account", ar), zap.Reflect("org", or))
+
 	return &Identity{
 		AccountNumber: or.EbsAccountID,
 		Type:          "System",
