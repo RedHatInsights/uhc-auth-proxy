@@ -47,7 +47,7 @@ var (
 // support-operator/commit cluster/cluster_id
 func getClusterID(userAgent string) (string, error) {
 	spl := strings.SplitN(userAgent, " ", 2)
-	if !strings.HasPrefix(spl[0], `support-operator/`) {
+	if !strings.HasPrefix(spl[0], `insights-operator/`) {
 		return "", fmt.Errorf("Invalid user-agent: %s", userAgent)
 	}
 

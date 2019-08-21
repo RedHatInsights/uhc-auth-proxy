@@ -17,7 +17,7 @@ import (
 var _ = Describe("Server", func() {
 	Describe("When passed a valid user-agent header", func() {
 		It("should return a cluster id", func() {
-			clusterID, err := getClusterID("support-operator/abc cluster/test_id")
+			clusterID, err := getClusterID("insights-operator/abc cluster/test_id")
 			Expect(err).To(BeNil())
 			Expect(clusterID).To(Equal("test_id"))
 		})
@@ -29,7 +29,7 @@ var _ = Describe("Server", func() {
 			Expect(clusterID).To(Equal(""))
 			Expect(err).To(Not(BeNil()))
 
-			clusterID, err = getClusterID("support-operator/abc junk")
+			clusterID, err = getClusterID("insights-operator/abc junk")
 			Expect(clusterID).To(Equal(""))
 			Expect(err).To(Not(BeNil()))
 		})
@@ -83,7 +83,7 @@ var _ = Describe("HandlerWithBadWrapper", func() {
 
 	Describe("When GetIdentity fails", func() {
 		It("should return an error", func() {
-			rr, ident := call(errWrapper, "support-operator/abc cluster/123", "Bearer errmytoken")
+			rr, ident := call(errWrapper, "insights-operator/abc cluster/123", "Bearer errmytoken")
 			Expect(rr.Result().StatusCode).To(Equal(401))
 			Expect(ident).To(Equal(&cluster.Identity{}))
 		})
@@ -122,7 +122,7 @@ var _ = Describe("Handler", func() {
 
 	Describe("When called with a valid request", func() {
 		It("should return a valid Identity json", func() {
-			_, ident := call(wrapper, "support-operator/abc cluster/123", "Bearer mytoken")
+			_, ident := call(wrapper, "insights-operator/abc cluster/123", "Bearer mytoken")
 			Expect(ident.AccountNumber).To(Equal("123"))
 			Expect(ident.Internal.OrgID).To(Equal("123"))
 			Expect(ident.Type).To(Equal("System"))
@@ -139,7 +139,7 @@ var _ = Describe("Handler", func() {
 
 	Describe("When called with an invalid auth", func() {
 		It("should not return an identity header", func() {
-			rr, ident := call(wrapper, "support-operator/abc cluster/123", "Bearer: mytoken")
+			rr, ident := call(wrapper, "insights-operator/abc cluster/123", "Bearer: mytoken")
 			Expect(rr.Result().StatusCode).To(Equal(400))
 			Expect(ident).To(Equal(&cluster.Identity{}))
 		})
@@ -147,7 +147,7 @@ var _ = Describe("Handler", func() {
 
 	Describe("When called with empty auth", func() {
 		It("should return an error", func() {
-			rr, ident := call(wrapper, "support-operator/abc cluster/123", "Bearer ")
+			rr, ident := call(wrapper, "insights-operator/abc cluster/123", "Bearer ")
 			Expect(rr.Result().StatusCode).To(Equal(500))
 			Expect(ident).To(Equal(&cluster.Identity{}))
 		})
