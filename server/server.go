@@ -43,11 +43,27 @@ var (
 	}, []string{"code"})
 )
 
+const (
+	insightsOperatorPrefix    = `insights-operator/`
+	costMgmtOperatorPrefix    = `cost-mgmt-operator/`
+	marketplaceOperatorPrefix = `marketplace-operator/`
+)
+
+var (
+	operatorPrefixes = [3]string{insightsOperatorPrefix, costMgmtOperatorPrefix, marketplaceOperatorPrefix}
+)
+
 // returns the cluster id from the user agent string used by the support operator
 // support-operator/commit cluster/cluster_id
 func getClusterID(userAgent string) (string, error) {
 	spl := strings.SplitN(userAgent, " ", 2)
-	if !strings.HasPrefix(spl[0], `insights-operator/`) {
+	validUserAgent := false
+	for prefixIdx := range operatorPrefixes {
+		if strings.HasPrefix(spl[0], operatorPrefixes[prefixIdx]) {
+			validUserAgent = true
+		}
+	}
+	if !validUserAgent {
 		return "", fmt.Errorf("Invalid user-agent: %s", userAgent)
 	}
 
