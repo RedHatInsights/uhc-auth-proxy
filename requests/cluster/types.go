@@ -77,7 +77,7 @@ type FakeWrapper struct {
 	GetOrgResponse       *Org
 }
 
-func (f *FakeWrapper) Do(req *http.Request) ([]byte, error) {
+func (f *FakeWrapper) Do(req *http.Request, label string) ([]byte, error) {
 	switch req.URL.String() {
 	case viper.GetString("GET_ACCOUNTID_URL"):
 		b, err := json.Marshal(f.GetAccountIDResponse)
@@ -94,6 +94,6 @@ func (f *FakeWrapper) Do(req *http.Request) ([]byte, error) {
 
 type ErrorWrapper struct{}
 
-func (e *ErrorWrapper) Do(req *http.Request) ([]byte, error) {
+func (e *ErrorWrapper) Do(req *http.Request, label string) ([]byte, error) {
 	return nil, fmt.Errorf("errWrapper for: %s", req.URL.String())
 }

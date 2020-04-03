@@ -62,7 +62,7 @@ func GetAccountID(wrapper client.Wrapper, r Registration) (*ClusterRegistrationR
 		return nil, err
 	}
 
-	b, err := wrapper.Do(req)
+	b, err := wrapper.Do(req, URL)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func GetAccount(wrapper client.Wrapper, accountID string) (*Account, error) {
 	URL := viper.GetString("ACCOUNT_DETAILS_URL")
 	req, _ := http.NewRequest("GET", fmt.Sprintf(URL, accountID), nil)
 
-	b, err := wrapper.Do(req)
+	b, err := wrapper.Do(req, URL)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func GetOrg(wrapper client.Wrapper, orgID string) (*Org, error) {
 	URL := viper.GetString("ORG_DETAILS_URL")
 	req, _ := http.NewRequest("GET", fmt.Sprintf(URL, orgID), nil)
 
-	b, err := wrapper.Do(req)
+	b, err := wrapper.Do(req, URL)
 	if err != nil {
 		return nil, err
 	}

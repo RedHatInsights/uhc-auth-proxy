@@ -36,7 +36,7 @@ type HTTPWrapper struct {
 // Wrapper provides a convenience method for getting bytes from
 // a http request
 type Wrapper interface {
-	Do(req *http.Request) ([]byte, error)
+	Do(req *http.Request, label string) ([]byte, error)
 }
 
 // AddHeaders sets the client headers, including the auth token
@@ -47,7 +47,7 @@ func (c *HTTPWrapper) AddHeaders(req *http.Request, token string) {
 }
 
 // Do is a convenience wrapper that returns the response bytes
-func (c *HTTPWrapper) Do(req *http.Request) ([]byte, error) {
+func (c *HTTPWrapper) Do(req *http.Request, label string) ([]byte, error) {
 	token, err := GetToken(c.OfflineAccessToken)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (c *HTTPWrapper) Do(req *http.Request) ([]byte, error) {
 	c.AddHeaders(req, token)
 	start := time.Now()
 	resp, err := client.Do(req)
-	requestTimes.With(prometheus.Labels{"url": req.URL.String()}).Observe(time.Since(start).Seconds())
+	requestTimes.With(prometheus.Labels{"url": label}).Observe(time.Since(start).Seconds())
 	if err != nil {
 		return nil, err
 	}
