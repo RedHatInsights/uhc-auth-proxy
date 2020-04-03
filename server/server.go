@@ -93,6 +93,8 @@ func makeKey(r cluster.Registration) (string, error) {
 func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		log = log.With(zap.String("req_id", request_id.GetReqID(r.Context())))
+
 		var respond = func(code int) {
 			w.WriteHeader(code)
 			responseMetrics.With(prometheus.Labels{"code": string(code)}).Inc()
