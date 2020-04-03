@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/spf13/viper"
@@ -54,14 +55,14 @@ func (c *HTTPWrapper) Do(req *http.Request) ([]byte, error) {
 	c.AddHeaders(req, token)
 	start := time.Now()
 	resp, err := client.Do(req)
-	requestTimes.With(prometheus.Labels{"url": req.RequestURI}).Observe(time.Since(start).Seconds())
+	requestTimes.With(prometheus.Labels{"url": req.URL.String()}).Observe(time.Since(start).Seconds())
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("request to %s failed: %d %s", req.RequestURI, resp.StatusCode, resp.Status)
+		return nil, fmt.Errorf("request to %s failed: %d %s", req.URL.String(), resp.StatusCode, resp.Status)
 	}
 
 	b, err := ioutil.ReadAll(resp.Body)
