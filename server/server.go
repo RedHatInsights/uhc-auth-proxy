@@ -93,7 +93,7 @@ func makeKey(r cluster.Registration) (string, error) {
 func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		log = log.With(zap.String("req_id", request_id.GetReqID(r.Context())))
+		logr := log.With(zap.String("req_id", request_id.GetReqID(r.Context())))
 
 		var respond = func(code int) {
 			w.WriteHeader(code)
@@ -102,7 +102,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		clusterID, err := getClusterID(r.Header.Get("user-agent"))
 		if err != nil {
-			log.Error("Failed to get the cluster id", zap.Error(err))
+			logr.Error("Failed to get the cluster id", zap.Error(err))
 			respond(400)
 			fmt.Fprintf(w, "Invalid user-agent: '%s'", err.Error())
 			return
@@ -110,7 +110,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		token, err := getToken(r.Header.Get("Authorization"))
 		if err != nil {
-			log.Error("Failed to get the token", zap.Error(err))
+			logr.Error("Failed to get the token", zap.Error(err))
 			respond(400)
 			fmt.Fprintf(w, "Invalid authorization header: '%s'", err.Error())
 			return
@@ -123,7 +123,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		key, err := makeKey(reg)
 		if err != nil {
-			log.Error("could not form a valid cluster registration object", zap.Error(err))
+			logr.Error("could not form a valid cluster registration object", zap.Error(err))
 			respond(500)
 			fmt.Fprintf(w, "Could not form valid cluster registration object: '%s'", err.Error())
 			return
@@ -138,7 +138,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 			cacheMiss.Inc()
 			ident, err := cluster.GetIdentity(wrapper, reg)
 			if err != nil {
-				log.Error("could not authenticate given the credentials", zap.Error(err))
+				logr.Error("could not authenticate given the credentials", zap.Error(err))
 				respond(401)
 				fmt.Fprintf(w, "Could not authenticate: '%s'", err.Error())
 				return
@@ -146,7 +146,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 			out, err = json.Marshal(ident)
 			if err != nil {
-				log.Error("Failed to marshal identity", zap.Error(err))
+				logr.Error("Failed to marshal identity", zap.Error(err))
 				respond(500)
 				fmt.Fprintf(w, "Unable to read identity: '%s'", err.Error())
 				return
