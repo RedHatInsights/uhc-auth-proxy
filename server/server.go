@@ -93,7 +93,8 @@ func makeKey(r cluster.Registration) (string, error) {
 func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		logr := log.With(zap.String("req_id", request_id.GetReqID(r.Context())))
+		reqID := r.Header.Get("x-rh-insights-request-id")
+		logr := log.With(zap.String("request_id_header", reqID), zap.String("req_id", request_id.GetReqID(r.Context())))
 
 		var respond = func(code int) {
 			w.WriteHeader(code)
@@ -138,7 +139,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 			cacheMiss.Inc()
 			ident, err := cluster.GetIdentity(wrapper, reg)
 			if err != nil {
-				logr.Error("could not authenticate given the credentials", zap.Error(err))
+				logr.Error("could not authenticate given the credentials", zap.Error(err), zap.String("cluster_id", reg.ClusterID))
 				respond(401)
 				fmt.Fprintf(w, "Could not authenticate: '%s'", err.Error())
 				return
