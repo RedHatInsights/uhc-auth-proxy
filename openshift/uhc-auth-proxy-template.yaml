@@ -61,6 +61,7 @@ objects:
         dnsPolicy: ClusterFirst
         imagePullSecrets:
         - name: cloudservices-buildfactory-pull-secret
+        - name: quay-cloudservices-pull
         restartPolicy: Always
         schedulerName: default-scheduler
         securityContext: {}
