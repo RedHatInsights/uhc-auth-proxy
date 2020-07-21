@@ -10,33 +10,51 @@ parameters:
 - name: IMAGE_TAG
   value: latest
 objects:
-- apiVersion: v1
-  kind: DeploymentConfig
+- apiVersion: apps/v1
+  kind: Deployment
   metadata:
     labels:
       app: uhc-auth-proxy
     name: uhc-auth-proxy
   spec:
+    minReadySeconds: 15
+    progressDeadlineSeconds: 600
     replicas: 1
+    revisionHistoryLimit: 9
     selector:
-      app: uhc-auth-proxy
-      deploymentconfig: uhc-auth-proxy
+      matchLabels:
+        app: uhc-auth-proxy
     strategy:
-      activeDeadlineSeconds: 21600
-      resources: {}
-      rollingParams:
-        intervalSeconds: 1
+      rollingUpdate:
         maxSurge: 25%
         maxUnavailable: 25%
-        timeoutSeconds: 600
-        updatePeriodSeconds: 1
-      type: Rolling
+      type: RollingUpdate
     template:
       metadata:
         labels:
           app: uhc-auth-proxy
-          deploymentconfig: uhc-auth-proxy
       spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - uhc-auth-proxy
+                topologyKey: failure-domain.beta.kubernetes.io/zone
+              weight: 100
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - uhc-auth-proxy
+                topologyKey: kubernetes.io/hostname
+              weight: 99
         containers:
         - env:
           - name: OAT
@@ -45,7 +63,7 @@ objects:
                 key: offline_access_token
                 name: uhc-auth-proxy-secret
           - name: SERVER_PORT
-            value: "8080"
+            value: '8080'
           image: ${REGISTRY_IMG}:${IMAGE_TAG}
           imagePullPolicy: Always
           name: uhc-auth-proxy
@@ -62,10 +80,24 @@ objects:
         imagePullSecrets:
         - name: cloudservices-buildfactory-pull-secret
         - name: quay-cloudservices-pull
+        - name: rh-registry-pull
         restartPolicy: Always
         schedulerName: default-scheduler
         securityContext: {}
         terminationGracePeriodSeconds: 30
-    test: false
-    triggers:
-    - type: ConfigChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: uhc-auth-proxy
+    name: uhc-auth-proxy
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: uhc-auth-proxy
+    sessionAffinity: None
+    type: ClusterIP
