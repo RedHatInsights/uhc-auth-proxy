@@ -98,6 +98,6 @@ objects:
       protocol: TCP
       targetPort: 8080
     selector:
-      deploymentconfig: uhc-auth-proxy
+      app: uhc-auth-proxy
     sessionAffinity: None
     type: ClusterIP
