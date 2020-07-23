@@ -10,7 +10,7 @@ the cluster is provisioned.
 
 This service provides an alternative way to authenticate and authorize
 requests without requiring a customer to store their SSO credentials
-somewhere within their cluster. This, in turn, enables the support-operator
+somewhere within their cluster. This, in turn, enables the insights-operator
 to send data with no additional configuration required.
 
 ![Image](../master/uhc-auth-proxy.png?raw=true)
@@ -38,13 +38,13 @@ to send data with no additional configuration required.
 
 ## Integration with current API broker
 
-In practice, a request is made of the API broker from the support-operator
+In practice, a request is made of the API broker from the insights-operator
 with the following headers:
 
-    User-agent: support-operator/<git hash> cluster/<cluster id>
+    User-agent: insights-operator/<git hash> cluster/<cluster id>
     Authentication: Bearer <authorization_token>
 
-Because the header indicates the call came from the support-operator the
+Because the header indicates the call came from the insights-operator the
 uhc-auth-proxy is delegated to for authentication.
 
 ## Configuration
