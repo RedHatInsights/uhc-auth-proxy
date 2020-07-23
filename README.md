@@ -25,15 +25,16 @@ to send data with no additional configuration required.
    member of.
 4. The auth proxy requests organization details for the found
    organization_id.
-5. Assuming everything above works, an identification document is returned
-   that looks something like this:
+5. Assuming everything above works, an identification document is returned.
+
+An identification document should look something like this:
 
     {
-        "account_number": "123456",
-        "type": "system",
-        "internal": {
-            "org_id": "1234567"
-        }
+         "account_number": "123456",
+         "type": "system",
+         "internal": {
+             "org_id": "1234567"
+         }
     }
 
 ## Integration with current API broker
