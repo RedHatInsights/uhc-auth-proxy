@@ -73,7 +73,7 @@ objects:
               memory: 500Mi
             requests:
               cpu: 100m
-              memory: 200Mi
+              memory: 250Mi
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
         dnsPolicy: ClusterFirst
