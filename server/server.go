@@ -161,6 +161,11 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 	}
 }
 
+// StatusHandler handles a basic /status endpoint for information/ready checks
+func StatusHandler(w http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(w).Encode("Status Placeholder: Service Running")
+}
+
 // Start starts the server
 func Start(offlineAccessToken string) {
 	r := chi.NewRouter()
@@ -181,6 +186,7 @@ func Start(offlineAccessToken string) {
 	r.Get("/", handler)
 	r.Get("/api/uhc-auth-proxy/v1", handler)
 	r.Handle("/metrics", promhttp.Handler())
+	r.Get("/status", StatusHandler)
 
 	port := viper.GetInt64("SERVER_PORT")
 
