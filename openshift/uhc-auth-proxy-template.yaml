@@ -67,6 +67,18 @@ objects:
           image: ${REGISTRY_IMG}:${IMAGE_TAG}
           imagePullPolicy: Always
           name: uhc-auth-proxy
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: 8080
+            initialDelaySeconds: 20
+            timeoutSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: 8080
+            initialDelaySeconds: 30
+            timeoutSeconds: 60
           resources:
             limits:
               cpu: 500m
