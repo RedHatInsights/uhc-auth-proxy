@@ -36,7 +36,7 @@ data:
             "y": 0
           },
           "hiddenSeries": false,
-          "id": 2,
+          "id": 1,
           "legend": {
             "avg": false,
             "current": false,
