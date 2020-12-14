@@ -63,7 +63,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(api_3scale_gateway_auth_status{service=\"apicast\",auth_type=\"uhc-auth\",status=\"5xx\"})/sum(api_3scale_gateway_auth_status{service=\"apicast\",auth_type=\"uhc-auth\"})",
+              "expr": "1-sum(api_3scale_gateway_auth_status{service=\"apicast\",auth_type=\"uhc-auth\",status=\"5xx\"})/sum(api_3scale_gateway_auth_status{service=\"apicast\",auth_type=\"uhc-auth\"})",
               "interval": "15s",
               "refId": "A"
             }
@@ -178,6 +178,7 @@ data:
           "yaxes": [
             {
               "format": "percentunit",
+              "decimals": 1,
               "label": null,
               "logBase": 1,
               "max": null,
