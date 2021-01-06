@@ -64,6 +64,16 @@ objects:
                 name: uhc-auth-proxy-secret
           - name: SERVER_PORT
             value: '8080'
+          - name: CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: client_id
+                name: uhc-auth-proxy-secret
+          - name: CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: client_secret
+                name: uhc-auth-proxy-secret
           image: ${REGISTRY_IMG}:${IMAGE_TAG}
           imagePullPolicy: Always
           name: uhc-auth-proxy

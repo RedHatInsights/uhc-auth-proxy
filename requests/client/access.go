@@ -23,8 +23,9 @@ var expires = time.Now().Unix()
 func fetch(offlineAccessToken string) (*response, error) {
 	resp, err := client.PostForm(viper.GetString("ACCESS_TOKEN_URL"), url.Values{
 		"grant_type":    {"refresh_token"},
-		"client_id":     {"cloud-services"},
+		"client_id":     {viper.GetString("CLIENT_ID")},
 		"refresh_token": {offlineAccessToken},
+		"client_secret": {viper.GetString("CLIENT_SECRET")}
 	})
 	if err != nil {
 		return nil, err
