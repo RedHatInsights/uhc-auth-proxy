@@ -25,7 +25,7 @@ func fetch(offlineAccessToken string) (*response, error) {
 		"grant_type":    {"refresh_token"},
 		"client_id":     {viper.GetString("CLIENT_ID")},
 		"refresh_token": {offlineAccessToken},
-		"client_secret": {viper.GetString("CLIENT_SECRET")}
+		"client_secret": {viper.GetString("CLIENT_SECRET")},
 	})
 	if err != nil {
 		return nil, err
