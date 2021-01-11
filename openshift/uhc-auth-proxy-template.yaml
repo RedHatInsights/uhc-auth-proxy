@@ -9,6 +9,9 @@ parameters:
   value: staging
 - name: IMAGE_TAG
   value: latest
+- name: REPLICAS
+  description: The number of replicas to use in the deployment
+  value: '1'
 objects:
 - apiVersion: apps/v1
   kind: Deployment
@@ -19,7 +22,7 @@ objects:
   spec:
     minReadySeconds: 15
     progressDeadlineSeconds: 600
-    replicas: 1
+    replicas: ${{REPLICAS}}
     revisionHistoryLimit: 9
     selector:
       matchLabels:
