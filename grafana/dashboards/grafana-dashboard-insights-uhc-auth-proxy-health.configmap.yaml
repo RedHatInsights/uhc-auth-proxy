@@ -63,7 +63,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "1-sum(api_3scale_gateway_auth_status{service=\"apicast\",auth_type=\"uhc-auth\",status=\"5xx\"})/sum(api_3scale_gateway_auth_status{service=\"apicast\",auth_type=\"uhc-auth\"})",
+              "expr": "1-(sum(rate(api_3scale_gateway_auth_status{service=\"apicast\",auth_type=\"uhc-auth\",status=\"5xx\"}[6h]))/sum(rate(api_3scale_gateway_auth_status{service=\"apicast\",auth_type=\"uhc-auth\"}[6h])))",
               "interval": "15s",
               "refId": "A"
             }
