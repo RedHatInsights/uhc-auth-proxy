@@ -31,7 +31,7 @@ An identification document should look something like this:
 
     {
          "account_number": "123456",
-         "type": "system",
+         "type": "System",
          "internal": {
              "org_id": "1234567"
          }
