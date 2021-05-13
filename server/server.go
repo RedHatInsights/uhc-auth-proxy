@@ -99,7 +99,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		var respond = func(code int) {
 			w.WriteHeader(code)
-			responseMetrics.With(prometheus.Labels{"code": string(code)}).Inc()
+			responseMetrics.With(prometheus.Labels{"code": fmt.Sprintf("%d", code)}).Inc()
 		}
 
 		clusterID, err := getClusterID(r.Header.Get("user-agent"))
