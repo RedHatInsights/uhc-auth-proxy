@@ -163,7 +163,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 // StatusHandler handles a basic /status endpoint for information/ready checks
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode("Status Placeholder: Service Running")
+	json.NewEncoder(w).Encode(map[string]string{"status": "available"})
 }
 
 // Start starts the server
