@@ -47,10 +47,11 @@ const (
 	insightsOperatorPrefix    = `insights-operator/`
 	costMgmtOperatorPrefix    = `cost-mgmt-operator/`
 	marketplaceOperatorPrefix = `marketplace-operator/`
+	acmOperator               = `acm-operator/`
 )
 
 var (
-	operatorPrefixes = [3]string{insightsOperatorPrefix, costMgmtOperatorPrefix, marketplaceOperatorPrefix}
+	operatorPrefixes = [4]string{insightsOperatorPrefix, costMgmtOperatorPrefix, marketplaceOperatorPrefix, acmOperator}
 )
 
 // returns the cluster id from the user agent string used by the support operator
@@ -98,7 +99,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		var respond = func(code int) {
 			w.WriteHeader(code)
-			responseMetrics.With(prometheus.Labels{"code": string(code)}).Inc()
+			responseMetrics.With(prometheus.Labels{"code": fmt.Sprintf("%d", code)}).Inc()
 		}
 
 		clusterID, err := getClusterID(r.Header.Get("user-agent"))

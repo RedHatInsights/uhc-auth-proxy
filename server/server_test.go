@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"fmt"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -121,12 +122,15 @@ var _ = Describe("Handler", func() {
 	})
 
 	Describe("When called with a valid request", func() {
-		It("should return a valid Identity json", func() {
-			_, ident := call(wrapper, "insights-operator/abc cluster/123", "Bearer mytoken")
-			Expect(ident.AccountNumber).To(Equal("123"))
-			Expect(ident.Internal.OrgID).To(Equal("123"))
-			Expect(ident.Type).To(Equal("System"))
-		})
+		validOperatorAgents := []string{"insights-operator", "cost-mgmt-operator", "marketplace-operator", "acm-operator"}
+		for _, a := range validOperatorAgents {
+			It(fmt.Sprintf("should return a valid Identity json for %s", a), func() {
+				_, ident := call(wrapper, fmt.Sprintf("%s/abc cluster/123", a), "Bearer mytoken")
+				Expect(ident.AccountNumber).To(Equal("123"))
+				Expect(ident.Internal.OrgID).To(Equal("123"))
+				Expect(ident.Type).To(Equal("System"))
+			})
+		}
 	})
 
 	Describe("When called with an invalid user-agent", func() {

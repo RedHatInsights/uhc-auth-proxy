@@ -126,4 +126,20 @@ the root of the project.
 This will build and install the `uhc-auth-proxy` command. You can request an
 identity document like this:
 
-    uhc-auth-proxy --oat $OFFLINE_AUTH_TOKEN --cluster-id $CLUSTER_ID --authorization-token $AUTHORIZATION_TOKEN
+    $ uhc-auth-proxy --oat $OFFLINE_AUTH_TOKEN --cluster-id $CLUSTER_ID --authorization-token $AUTHORIZATION_TOKEN
+
+## Local Development
+
+This will start the service on port `8080`:
+```
+$ uhc-auth-proxy start
+```
+
+Any changes to code will require running `go install` to rebuild.
+
+### Tests
+
+To run tests locally:
+```
+$ go test -v ./...
+```
