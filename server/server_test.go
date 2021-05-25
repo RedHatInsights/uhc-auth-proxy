@@ -134,8 +134,14 @@ var _ = Describe("Handler", func() {
 	})
 
 	Describe("When called with an invalid user-agent", func() {
-		It("should not return an identity header", func() {
+		It("should not return an identity header without a supported operator", func() {
 			rr, ident := call(wrapper, "curl", "Bearer mytoken")
+			Expect(rr.Result().StatusCode).To(Equal(400))
+			Expect(ident).To(Equal(&cluster.Identity{}))
+		})
+
+		It("should not return an identity header without a cluster", func() {
+			rr, ident := call(wrapper, "insights-operator/abc", "Bearer mytoken")
 			Expect(rr.Result().StatusCode).To(Equal(400))
 			Expect(ident).To(Equal(&cluster.Identity{}))
 		})

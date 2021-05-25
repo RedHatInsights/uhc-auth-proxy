@@ -59,16 +59,13 @@ var (
 func getClusterID(userAgent string) (string, error) {
 	spl := strings.SplitN(userAgent, " ", 2)
 	validUserAgent := false
+	clusterInAgent := len(spl) >= 2 && strings.HasPrefix(spl[1], `cluster/`)
 	for prefixIdx := range operatorPrefixes {
-		if strings.HasPrefix(spl[0], operatorPrefixes[prefixIdx]) {
+		if strings.HasPrefix(spl[0], operatorPrefixes[prefixIdx]) && clusterInAgent {
 			validUserAgent = true
 		}
 	}
 	if !validUserAgent {
-		return "", fmt.Errorf("Invalid user-agent: %s", userAgent)
-	}
-
-	if !strings.HasPrefix(spl[1], `cluster/`) {
 		return "", fmt.Errorf("Invalid user-agent: %s", userAgent)
 	}
 
