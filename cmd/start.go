@@ -18,7 +18,6 @@ package cmd
 import (
 	"github.com/redhatinsights/uhc-auth-proxy/server"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // startCmd represents the start command
@@ -26,10 +25,7 @@ var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "starts the service",
 	Run: func(cmd *cobra.Command, args []string) {
-		if OfflineAccessToken == "" {
-			OfflineAccessToken = viper.GetString("OAT")
-		}
-		server.Start(OfflineAccessToken)
+		server.Start()
 	},
 }
 

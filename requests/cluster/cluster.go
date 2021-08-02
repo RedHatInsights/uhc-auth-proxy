@@ -1,7 +1,6 @@
 package cluster
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -20,88 +19,40 @@ func init() {
 }
 
 // GetIdentity is a facade over all the steps required to get an Identity
-func GetIdentity(wrapper client.Wrapper, r Registration) (*Identity, error) {
-	rr, err := GetAccountID(wrapper, r)
-	if err != nil {
-		return nil, fmt.Errorf("got an err when calling GetAccountID: %s", err)
-	}
+func GetIdentity(wrapper client.Wrapper, reg Registration) (*Identity, error) {
 
-	ar, err := GetAccount(wrapper, rr.AccountID)
+	acct, err := GetCurrentAccount(wrapper, reg)
 	if err != nil {
-		return nil, fmt.Errorf("got an err when calling GetAccount: %s", err)
-	}
-
-	or, err := GetOrg(wrapper, ar.Organization.ID)
-	if err != nil {
-		return nil, fmt.Errorf("got an err when calling GetOrg: %s", err)
+		return nil, fmt.Errorf("got an err when calling GetCurrentAccount: %s", err)
 	}
 
 	return &Identity{
-		AccountNumber: or.EbsAccountID,
+		AccountNumber: acct.Organization.EbsAccountID,
 		Type:          "System",
 		System: map[string]string{
-			"cluster_id": r.ClusterID,
+			"cluster_id": reg.ClusterID,
 		},
 		Internal: Internal{
-			OrgID: or.ExternalID,
+			OrgID: acct.Organization.ExternalID,
 		},
 	}, nil
 }
 
-// GetAccountID requests a cluster registration with the given Request
-func GetAccountID(wrapper client.Wrapper, r Registration) (*ClusterRegistrationResponse, error) {
-	body, err := json.Marshal(r)
+// GetCurrentAccount uses a new flow with direct cluster tokenauth
+func GetCurrentAccount(wrapper client.Wrapper, reg Registration) (*Account, error) {
+	URL := viper.GetString("CURRENT_ACCOUNT_URL")
+
+	req, err := http.NewRequest("GET", URL, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	buf := bytes.NewBuffer(body)
-	URL := viper.GetString("GET_ACCOUNTID_URL")
-	req, err := http.NewRequest("POST", URL, buf)
-	if err != nil {
-		return nil, err
-	}
-
-	b, err := wrapper.Do(req, URL)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &ClusterRegistrationResponse{}
-	if err := json.Unmarshal(b, res); err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-// GetAccount retrieves account details
-func GetAccount(wrapper client.Wrapper, accountID string) (*Account, error) {
-	URL := viper.GetString("ACCOUNT_DETAILS_URL")
-	req, _ := http.NewRequest("GET", fmt.Sprintf(URL, accountID), nil)
-
-	b, err := wrapper.Do(req, URL)
+	b, err := wrapper.Do(req, URL, reg.ClusterID, reg.AuthorizationToken)
 	if err != nil {
 		return nil, err
 	}
 
 	res := &Account{}
-	if err := json.Unmarshal(b, res); err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-// GetOrg retrieves organization details
-func GetOrg(wrapper client.Wrapper, orgID string) (*Org, error) {
-	URL := viper.GetString("ORG_DETAILS_URL")
-	req, _ := http.NewRequest("GET", fmt.Sprintf(URL, orgID), nil)
-
-	b, err := wrapper.Do(req, URL)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &Org{}
 	if err := json.Unmarshal(b, res); err != nil {
 		return nil, err
 	}
