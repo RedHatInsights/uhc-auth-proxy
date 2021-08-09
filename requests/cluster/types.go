@@ -15,18 +15,33 @@ type Registration struct {
 	AuthorizationToken string `json:"authorization_token"`
 }
 
+// Response is the format of the cluster registration response
+type ClusterRegistrationResponse struct {
+	ClusterID          string `json:"cluster_id"`
+	AuthorizationToken string `json:"authorization_token"`
+	AccountID          string `json:"account_id"`
+	ExpiresAt          string `json:"expires_at"`
+}
+
+type Organization struct {
+	ID   string `json:"id"`
+	Kind string `json:"kind"`
+	HRef string `json:"href"`
+	Name string `json:"name"`
+}
+
 type Account struct {
-	ID           string    `json:"id"`
-	Kind         string    `json:"kind"`
-	HRef         string    `json:"href"`
-	FirstName    string    `json:"first_name"`
-	LastName     string    `json:"last_name"`
-	Username     string    `json:"username"`
-	Email        string    `json:"email"`
-	Banned       bool      `json:"banned"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	Organization Org       `json:"organization"`
+	ID           string       `json:"id"`
+	Kind         string       `json:"kind"`
+	HRef         string       `json:"href"`
+	FirstName    string       `json:"first_name"`
+	LastName     string       `json:"last_name"`
+	Username     string       `json:"username"`
+	Email        string       `json:"email"`
+	Banned       bool         `json:"banned"`
+	CreatedAt    time.Time    `json:"created_at"`
+	UpdatedAt    time.Time    `json:"updated_at"`
+	Organization Organization `json:"organization"`
 }
 
 type Org struct {
@@ -38,6 +53,11 @@ type Org struct {
 	EbsAccountID string    `json:"ebs_account_id"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type OrgRequest struct {
+	Token string
+	OrgID string
 }
 
 type Internal struct {
@@ -52,13 +72,21 @@ type Identity struct {
 }
 
 type FakeWrapper struct {
-	GetAccountResponse *Account
+	GetAccountIDResponse *ClusterRegistrationResponse
+	GetAccountResponse   *Account
+	GetOrgResponse       *Org
 }
 
-func (f *FakeWrapper) Do(req *http.Request, label string, cluster_id string, authorization_token string) ([]byte, error) {
+func (f *FakeWrapper) Do(req *http.Request, label string) ([]byte, error) {
 	switch req.URL.String() {
-	case viper.GetString("CURRENT_ACCOUNT_URL"):
+	case viper.GetString("GET_ACCOUNTID_URL"):
+		b, err := json.Marshal(f.GetAccountIDResponse)
+		return b, err
+	case fmt.Sprintf(viper.GetString("ACCOUNT_DETAILS_URL"), "123"):
 		b, err := json.Marshal(f.GetAccountResponse)
+		return b, err
+	case fmt.Sprintf(viper.GetString("ORG_DETAILS_URL"), "123"):
+		b, err := json.Marshal(f.GetOrgResponse)
 		return b, err
 	}
 	return nil, fmt.Errorf("FakeClientWrapper failed to handle a case: %s", req.URL.String())
@@ -66,6 +94,6 @@ func (f *FakeWrapper) Do(req *http.Request, label string, cluster_id string, aut
 
 type ErrorWrapper struct{}
 
-func (e *ErrorWrapper) Do(req *http.Request, label string, cluster_id string, authorization_token string) ([]byte, error) {
+func (e *ErrorWrapper) Do(req *http.Request, label string) ([]byte, error) {
 	return nil, fmt.Errorf("errWrapper for: %s", req.URL.String())
 }

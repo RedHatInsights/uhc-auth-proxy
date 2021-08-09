@@ -66,7 +66,7 @@ func getClusterID(userAgent string) (string, error) {
 		}
 	}
 	if !validUserAgent {
-		return "", fmt.Errorf("invalid user-agent: %s", userAgent)
+		return "", fmt.Errorf("Invalid user-agent: %s", userAgent)
 	}
 
 	return strings.TrimPrefix(spl[1], `cluster/`), nil
@@ -74,7 +74,7 @@ func getClusterID(userAgent string) (string, error) {
 
 func getToken(authorizationHeader string) (string, error) {
 	if !strings.HasPrefix(authorizationHeader, `Bearer `) {
-		return "", fmt.Errorf("not a bearer token: '%s'", authorizationHeader)
+		return "", fmt.Errorf("Not a bearer token: '%s'", authorizationHeader)
 	}
 
 	return strings.TrimPrefix(authorizationHeader, `Bearer `), nil
@@ -165,7 +165,7 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Start starts the server
-func Start() {
+func Start(offlineAccessToken string) {
 	r := chi.NewRouter()
 	r.Use(
 		request_id.ConfiguredRequestID("x-rh-insights-request-id"),
@@ -175,7 +175,9 @@ func Start() {
 		middleware.StripSlashes,
 	)
 
-	wrapper := &client.HTTPWrapper{}
+	wrapper := &client.HTTPWrapper{
+		OfflineAccessToken: offlineAccessToken,
+	}
 
 	handler := RootHandler(wrapper)
 

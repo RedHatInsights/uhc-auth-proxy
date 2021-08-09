@@ -29,25 +29,30 @@ var (
 // HTTPWrapper manages the headers and auth required to speak
 // with the auth service.  It also provides a convenience method
 // to get the bytes from a request.
-type HTTPWrapper struct{}
+type HTTPWrapper struct {
+	OfflineAccessToken string
+}
 
 // Wrapper provides a convenience method for getting bytes from
 // a http request
 type Wrapper interface {
-	Do(req *http.Request, label string, cluster_id string, authorization_token string) ([]byte, error)
+	Do(req *http.Request, label string) ([]byte, error)
 }
 
 // AddHeaders sets the client headers, including the auth token
-func (c *HTTPWrapper) AddHeaders(req *http.Request, cluster_id string, authorization_token string) {
-	req.Header.Add("Authorization", fmt.Sprintf("AccessToken %s:%s", cluster_id, authorization_token))
+func (c *HTTPWrapper) AddHeaders(req *http.Request, token string) {
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 }
 
 // Do is a convenience wrapper that returns the response bytes
-func (c *HTTPWrapper) Do(req *http.Request, label string, cluster_id string, authorization_token string) ([]byte, error) {
-
-	c.AddHeaders(req, cluster_id, authorization_token)
+func (c *HTTPWrapper) Do(req *http.Request, label string) ([]byte, error) {
+	token, err := GetToken(c.OfflineAccessToken)
+	if err != nil {
+		return nil, err
+	}
+	c.AddHeaders(req, token)
 	start := time.Now()
 	resp, err := client.Do(req)
 	requestTimes.With(prometheus.Labels{"url": label}).Observe(time.Since(start).Seconds())

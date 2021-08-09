@@ -26,6 +26,7 @@ import (
 )
 
 var cfgFile string
+var OfflineAccessToken string
 var ClusterID string
 var AuthorizationToken string
 
@@ -49,6 +50,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	rootCmd.PersistentFlags().StringVar(&OfflineAccessToken, "oat", "", "offline access token used to gain access to the authentication service")
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
