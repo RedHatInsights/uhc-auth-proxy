@@ -10,13 +10,11 @@ import (
 var _ = Describe("Cluster", func() {
 
 	var (
-		reg                *Registration
-		ident              *Identity
-		wrapper            *FakeWrapper
-		errWrapper         *ErrorWrapper
-		clusterRegResponse *ClusterRegistrationResponse
-		account            *Account
-		org                *Org
+		reg        *Registration
+		ident      *Identity
+		wrapper    *FakeWrapper
+		errWrapper *ErrorWrapper
+		account    *Account
 	)
 
 	BeforeEach(func() {
@@ -34,41 +32,22 @@ var _ = Describe("Cluster", func() {
 				"cluster_id": "test",
 			},
 		}
-		clusterRegResponse = &ClusterRegistrationResponse{
-			AccountID: "123",
-		}
 		account = &Account{
-			Organization: Organization{
-				ID: "123",
+			Organization: Org{
+				EbsAccountID: "123",
+				ExternalID:   "123",
 			},
 		}
-		org = &Org{
-			EbsAccountID: "123",
-			ExternalID:   "123",
-		}
+
 		wrapper = &FakeWrapper{
-			GetAccountIDResponse: clusterRegResponse,
-			GetAccountResponse:   account,
-			GetOrgResponse:       org,
+			GetAccountResponse: account,
 		}
 		errWrapper = &ErrorWrapper{}
 	})
 
-	Describe("GetAccountID with valid Registration", func() {
-		It("should return a proper cluster registration response", func() {
-			Expect(GetAccountID(wrapper, *reg)).To(Equal(clusterRegResponse))
-		})
-	})
-
-	Describe("GetAccount with valid accountID", func() {
+	Describe("GetCurrentAccount with valid account info", func() {
 		It("should return a proper Account struct", func() {
-			Expect(GetAccount(wrapper, "123")).To(Equal(account))
-		})
-	})
-
-	Describe("GetOrg with valid orgID", func() {
-		It("should return a proper Org struct", func() {
-			Expect(GetOrg(wrapper, "123")).To(Equal(org))
+			Expect(GetCurrentAccount(wrapper, *reg)).To(Equal(account))
 		})
 	})
 

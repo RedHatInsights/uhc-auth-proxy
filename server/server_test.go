@@ -2,10 +2,10 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"fmt"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -94,29 +94,19 @@ var _ = Describe("HandlerWithBadWrapper", func() {
 var _ = Describe("Handler", func() {
 
 	var (
-		wrapper            *cluster.FakeWrapper
-		clusterRegResponse *cluster.ClusterRegistrationResponse
-		account            *cluster.Account
-		org                *cluster.Org
+		wrapper *cluster.FakeWrapper
+		account *cluster.Account
 	)
 
 	BeforeEach(func() {
-		clusterRegResponse = &cluster.ClusterRegistrationResponse{
-			AccountID: "123",
-		}
 		account = &cluster.Account{
-			Organization: cluster.Organization{
-				ID: "123",
+			Organization: cluster.Org{
+				EbsAccountID: "123",
+				ExternalID:   "123",
 			},
 		}
-		org = &cluster.Org{
-			EbsAccountID: "123",
-			ExternalID:   "123",
-		}
 		wrapper = &cluster.FakeWrapper{
-			GetAccountIDResponse: clusterRegResponse,
-			GetAccountResponse:   account,
-			GetOrgResponse:       org,
+			GetAccountResponse: account,
 		}
 		cache.Clear()
 	})
