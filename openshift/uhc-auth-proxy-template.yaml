@@ -9,6 +9,8 @@ parameters:
   value: staging
 - name: IMAGE_TAG
   value: latest
+- name: OPENSHIFT_API_TARGET
+  value: https://api.openshift.com/api/accounts_mgmt/v1/current_account
 - name: REPLICAS
   description: The number of replicas to use in the deployment
   value: '1'
@@ -65,6 +67,8 @@ objects:
               secretKeyRef:
                 key: offline_access_token
                 name: uhc-auth-proxy-secret
+          - name: CURRENT_ACCOUNT_URL
+            value: ${OPENSHIFT_API_TARGET}
           - name: SERVER_PORT
             value: '8080'
           - name: CLIENT_ID
