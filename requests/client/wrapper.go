@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -24,6 +25,10 @@ var (
 			1000,
 		},
 	}, []string{"url"})
+	acctMgmtRequest = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "uhc_auth_proxy_to_acct_mgmt_request_status",
+		Help: "UHC auth proxy to account management request status",
+	}, []string{"code"})
 )
 
 // HTTPWrapper manages the headers and auth required to speak
@@ -50,6 +55,7 @@ func (c *HTTPWrapper) Do(req *http.Request, label string, cluster_id string, aut
 	c.AddHeaders(req, cluster_id, authorization_token)
 	start := time.Now()
 	resp, err := client.Do(req)
+	acctMgmtRequest.WithLabelValues(strconv.Itoa(resp.StatusCode)).Inc()
 	requestTimes.With(prometheus.Labels{"url": label}).Observe(time.Since(start).Seconds())
 	if err != nil {
 		return nil, err
