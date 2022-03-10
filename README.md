@@ -19,13 +19,11 @@ to send data with no additional configuration required.
 
 1. A request is made containing the cluster_id and authorization_token from a
    cluster
-2. the auth proxy requests the account_id that provisioned the cluster. Here
-   account_id refers to a single user.
-3. The auth proxy requests the organzation_id that the provisioning user is a
-   member of.
-4. The auth proxy requests organization details for the found
-   organization_id.
-5. Assuming everything above works, an identification document is returned.
+2. The auth proxy forms an authorization header from the provided cluster_id
+   and authorization_token for a request to the OpenShift API
+   account_management endpoint
+3. Using the data returned from the OpenShift API, an identification document
+   is built and returned.
 
 An identification document should look something like this:
 
@@ -50,35 +48,9 @@ uhc-auth-proxy is delegated to for authentication.
 
 ## Configuration
 
-In order to communicate with the backend services that UHC uses a priveleged
-service account must be maintained. This account will have an
-`offline_access_token` that should be configured as part of the deployment of
-the service.
+The following API will need to be accessed:
 
-The _oat_ can be used to request a short-lived token that will be allowed to
-access the UHC services.
-
-The following APIs will need to be accessed:
-
-### POST https://api.openshift.com/api/accounts_mgmt/v1/cluster_registrations
-
-A document like below is posted:
-
-    {
-        "cluster_id": "$cluster_id",
-        "authorization_token": "$authorization_token",
-    }
-
-The API returns something like:
-
-    {
-        "cluster_id": "$cluster_id",
-        "authorization_token": "$authorization_token",
-        "account_id": "string",
-        "expires_at": "number"
-    }
-
-### GET https://api.openshift.com/api/accounts_mgmt/v1/accounts/:account_id
+### GET https://api.openshift.com/api/accounts_mgmt/v1/current_account
 
 The API returns something like:
 
@@ -100,23 +72,6 @@ The API returns something like:
             "name": "Organization Name"
         }
     }
-
-### GET https://api.openshift.com/api/accounts_mgmt/v1/organizations/:org_id
-
-The API returns something like:
-
-    {
-        "id": ":org_id",
-        "kind": "Organization",
-        "href": "/api/accounts_mgmt/v1/organizations/:org_id",
-        "name": "Organization Name",
-        "external_id": "number",
-        "ebs_account_id": "number",
-        "created_at": "timestamp",
-        "updated_at": "timestamp"
-    }
-
-Permissions must be granted and maintained for each resource.
 
 ## CLI
 
