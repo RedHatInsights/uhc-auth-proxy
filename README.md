@@ -32,7 +32,8 @@ An identification document should look something like this:
          "type": "System",
          "internal": {
              "org_id": "1234567"
-         }
+         },
+         "system":{"cluster_id":"1234567"}
     }
 
 ## Integration with current API broker
@@ -78,21 +79,34 @@ The API returns something like:
 You can try all the calls via the cli. To get started run `go install` from
 the root of the project.
 
-This will build and install the `uhc-auth-proxy` command. You can request an
-identity document like this:
+This will build and install the `uhc-auth-proxy` command. You can request an identity document like this:
 
-    $ uhc-auth-proxy --oat $OFFLINE_AUTH_TOKEN --cluster-id $CLUSTER_ID --authorization-token $AUTHORIZATION_TOKEN
+    $ uhc-auth-proxy run --cluster-id $CLUSTER_ID --authorization-token $AUTHORIZATION_TOKEN
 
 ## Local Development
 
+Any changes to code will require running `go install` and `go build` to rebuild.
+
 This will start the service on port `8080`:
-```
-$ uhc-auth-proxy start
-```
 
-Any changes to code will require running `go install` to rebuild.
+    $ uhc-auth-proxy start
 
-### Tests
+
+Example of a curl call to local deployment:
+
+    $ curl -X GET http://localhost:8080/api/uhc-auth-proxy/v1 -H 'user-agent: insights-operator/abcdef cluster/ghijkl' -H'Authorization: Bearer <Access token>'
+
+## Open Endpoints
+
+There are three open endpoints that could be reached. 
+
+`/api/uhc-auth-proxy/v1`
+
+`/metrics`
+
+`/status`
+
+## Tests
 
 To run tests locally:
 ```
