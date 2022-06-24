@@ -24,6 +24,7 @@ var _ = Describe("Cluster", func() {
 		}
 		ident = &Identity{
 			AccountNumber: "123",
+			OrgID:         "123",
 			Type:          "System",
 			Internal: Internal{
 				OrgID: "123",
