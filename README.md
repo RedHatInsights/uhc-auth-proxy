@@ -29,6 +29,7 @@ An identification document should look something like this:
 
     {
          "account_number": "123456",
+         "org_id": "1234567",
          "type": "System",
          "internal": {
              "org_id": "1234567"
@@ -98,7 +99,7 @@ Example of a curl call to local deployment:
 
 ## Open Endpoints
 
-There are three open endpoints that could be reached. 
+There are three open endpoints that could be reached.
 
 `/api/uhc-auth-proxy/v1`
 

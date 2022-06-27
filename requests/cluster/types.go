@@ -46,6 +46,7 @@ type Internal struct {
 
 type Identity struct {
 	AccountNumber string            `json:"account_number"`
+	OrgID string                    `json:"org_id"`
 	Type          string            `json:"type"`
 	Internal      Internal          `json:"internal"`
 	System        map[string]string `json:"system,omitempty"`

@@ -28,6 +28,7 @@ func GetIdentity(wrapper client.Wrapper, reg Registration) (*Identity, error) {
 
 	return &Identity{
 		AccountNumber: acct.Organization.EbsAccountID,
+		OrgID:         acct.Organization.ExternalID,
 		Type:          "System",
 		System: map[string]string{
 			"cluster_id": reg.ClusterID,
