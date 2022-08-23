@@ -6,7 +6,10 @@ data:
         "list": [
           {
             "builtIn": 1,
-            "datasource": "-- Grafana --",
+            "datasource": {
+              "type": "datasource",
+              "uid": "grafana"
+            },
             "enable": true,
             "hide": true,
             "iconColor": "rgba(0, 211, 255, 1)",
@@ -23,18 +26,16 @@ data:
       },
       "editable": true,
       "fiscalYearStartMonth": 0,
-      "gnetId": null,
       "graphTooltip": 0,
-      "id": 219,
-      "iteration": 1637091591372,
+      "id": 97,
+      "iteration": 1661261296013,
       "links": [],
       "liveNow": false,
       "panels": [
         {
-          "datasource": null,
-          "fieldConfig": {
-            "defaults": {},
-            "overrides": []
+          "datasource": {
+            "type": "prometheus",
+            "uid": "tuHy3WB7z"
           },
           "gridPos": {
             "h": 1,
@@ -43,23 +44,48 @@ data:
             "y": 0
           },
           "id": 42,
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "tuHy3WB7z"
+              },
+              "refId": "A"
+            }
+          ],
           "title": "Percentage of request status",
           "type": "row"
         },
         {
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "fieldConfig": {
             "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
               "mappings": [],
+              "max": 100,
+              "min": 0,
               "thresholds": {
                 "mode": "percentage",
                 "steps": [
                   {
-                    "color": "green",
+                    "color": "red",
                     "value": null
+                  },
+                  {
+                    "color": "#EAB839",
+                    "value": 95
+                  },
+                  {
+                    "color": "green",
+                    "value": 98
                   }
                 ]
-              }
+              },
+              "unit": "percent"
             },
             "overrides": []
           },
@@ -83,9 +109,12 @@ data:
             "showThresholdMarkers": true,
             "text": {}
           },
-          "pluginVersion": "8.2.1",
+          "pluginVersion": "9.0.3",
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(rate(uhc_auth_proxy_responses{namespace=\"$namespace\", code=~\"2..\"}[$__rate_interval]))/sum(rate(uhc_auth_proxy_responses{namespace=\"$namespace\"}[$__rate_interval]))*100",
               "interval": "",
@@ -93,16 +122,18 @@ data:
               "refId": "A"
             }
           ],
-          "timeFrom": null,
-          "timeShift": null,
           "title": "2xx Response Percentage",
           "type": "gauge"
         },
         {
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "fieldConfig": {
             "defaults": {
               "mappings": [],
+              "max": 100,
+              "min": 0,
               "thresholds": {
                 "mode": "percentage",
                 "steps": [
@@ -112,10 +143,11 @@ data:
                   },
                   {
                     "color": "red",
-                    "value": 30
+                    "value": 10
                   }
                 ]
-              }
+              },
+              "unit": "percent"
             },
             "overrides": []
           },
@@ -139,9 +171,12 @@ data:
             "showThresholdMarkers": true,
             "text": {}
           },
-          "pluginVersion": "8.2.1",
+          "pluginVersion": "9.0.3",
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(rate(uhc_auth_proxy_responses{namespace=\"$namespace\", code=~\"4..\"}[$__rate_interval]))/sum(rate(uhc_auth_proxy_responses{namespace=\"$namespace\"}[$__rate_interval]))*100",
               "interval": "",
@@ -149,16 +184,18 @@ data:
               "refId": "A"
             }
           ],
-          "timeFrom": null,
-          "timeShift": null,
           "title": "4xx Response Percentage",
           "type": "gauge"
         },
         {
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "fieldConfig": {
             "defaults": {
               "mappings": [],
+              "max": 100,
+              "min": 0,
               "noValue": "0",
               "thresholds": {
                 "mode": "percentage",
@@ -169,10 +206,11 @@ data:
                   },
                   {
                     "color": "red",
-                    "value": 10
+                    "value": 5
                   }
                 ]
-              }
+              },
+              "unit": "percent"
             },
             "overrides": []
           },
@@ -196,9 +234,12 @@ data:
             "showThresholdMarkers": true,
             "text": {}
           },
-          "pluginVersion": "8.2.1",
+          "pluginVersion": "9.0.3",
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(rate(uhc_auth_proxy_responses{namespace=\"$namespace\", code=~\"5..\"}[$__rate_interval]))/sum(rate(uhc_auth_proxy_responses{namespace=\"$namespace\"}[$__rate_interval]))*100",
               "interval": "",
@@ -206,17 +247,14 @@ data:
               "refId": "A"
             }
           ],
-          "timeFrom": null,
-          "timeShift": null,
           "title": "500 Response Percentage",
           "type": "gauge"
         },
         {
           "collapsed": false,
-          "datasource": null,
-          "fieldConfig": {
-            "defaults": {},
-            "overrides": []
+          "datasource": {
+            "type": "prometheus",
+            "uid": "tuHy3WB7z"
           },
           "gridPos": {
             "h": 1,
@@ -226,6 +264,15 @@ data:
           },
           "id": 28,
           "panels": [],
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "tuHy3WB7z"
+              },
+              "refId": "A"
+            }
+          ],
           "title": "API status /api/uhc-auth-proxy/v1",
           "type": "row"
         },
@@ -234,7 +281,9 @@ data:
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "fill": 1,
           "fillGradient": 0,
           "gridPos": {
@@ -264,7 +313,7 @@ data:
             "alertThreshold": true
           },
           "percentage": false,
-          "pluginVersion": "8.2.1",
+          "pluginVersion": "9.0.3",
           "pointradius": 2,
           "points": false,
           "renderer": "flot",
@@ -274,6 +323,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(rate(uhc_auth_proxy_cache_hit{namespace=\"$namespace\", pod=~\"uhc-auth-proxy.*\", service=\"uhc-auth-proxy\"}[1m]))",
               "format": "time_series",
@@ -284,9 +336,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Cache hit per minute",
           "tooltip": {
             "shared": true,
@@ -295,9 +345,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
@@ -305,25 +353,18 @@ data:
             {
               "$$hashKey": "object:839",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "$$hashKey": "object:840",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
@@ -331,7 +372,9 @@ data:
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "fill": 1,
           "fillGradient": 0,
           "gridPos": {
@@ -361,7 +404,7 @@ data:
             "alertThreshold": true
           },
           "percentage": false,
-          "pluginVersion": "8.2.1",
+          "pluginVersion": "9.0.3",
           "pointradius": 2,
           "points": false,
           "renderer": "flot",
@@ -371,6 +414,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(rate(uhc_auth_proxy_cache_miss{namespace=\"$namespace\", pod=~\"uhc-auth-proxy.*\", service=\"uhc-auth-proxy\"}[1m]))",
               "format": "time_series",
@@ -381,9 +427,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Cache miss per minute",
           "tooltip": {
             "shared": true,
@@ -392,9 +436,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
@@ -402,25 +444,18 @@ data:
             {
               "$$hashKey": "object:839",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "$$hashKey": "object:840",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
@@ -428,7 +463,9 @@ data:
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "fieldConfig": {
             "defaults": {
               "links": []
@@ -462,7 +499,7 @@ data:
             "alertThreshold": true
           },
           "percentage": false,
-          "pluginVersion": "8.2.1",
+          "pluginVersion": "9.0.3",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -472,6 +509,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(rate(uhc_auth_proxy_responses{job=\"uhc-auth-proxy\", namespace=\"$namespace\"}[$__rate_interval])) by (code)",
               "interval": "1m",
@@ -480,9 +520,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Request response code",
           "tooltip": {
             "shared": true,
@@ -491,9 +529,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
@@ -501,42 +537,33 @@ data:
             {
               "$$hashKey": "object:691",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "$$hashKey": "object:692",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
-          "cards": {
-            "cardPadding": null,
-            "cardRound": null
-          },
+          "cards": {},
           "color": {
             "cardColor": "#FF780A",
             "colorScale": "linear",
             "colorScheme": "interpolateOranges",
             "exponent": 0.9,
-            "min": null,
             "mode": "opacity"
           },
           "dataFormat": "tsbuckets",
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "gridPos": {
             "h": 8,
             "w": 12,
@@ -556,6 +583,9 @@ data:
           "reverseYBuckets": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(increase(api_3scale_gateway_auth_time_bucket{auth_type=\"uhc-auth\"}[$__interval])) by (le)",
               "format": "heatmap",
@@ -564,7 +594,6 @@ data:
               "refId": "A"
             }
           ],
-          "timeShift": null,
           "title": "API latency in 3scale",
           "tooltip": {
             "show": true,
@@ -574,28 +603,21 @@ data:
           "xAxis": {
             "show": true
           },
-          "xBucketNumber": null,
-          "xBucketSize": null,
           "yAxis": {
-            "decimals": null,
             "format": "dtdurations",
             "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true,
-            "splitFactor": null,
-            "width": null
+            "show": true
           },
-          "yBucketBound": "auto",
-          "yBucketNumber": null,
-          "yBucketSize": null
+          "yBucketBound": "auto"
         },
         {
           "aliasColors": {},
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "description": "Proportion of 5xx status codes returned from this service.",
           "fieldConfig": {
             "defaults": {
@@ -642,6 +664,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(rate(api_3scale_gateway_auth_status{service=\"apicast\",auth_type=\"uhc-auth\",status=\"5xx\"}[5m]))/sum(rate(api_3scale_gateway_auth_status{service=\"apicast\",auth_type=\"uhc-auth\"}[5m]))",
               "interval": "15s",
@@ -650,9 +675,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Error Rate in 3scale",
           "tooltip": {
             "shared": true,
@@ -661,9 +684,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
@@ -671,33 +692,26 @@ data:
             {
               "$$hashKey": "object:460",
               "format": "percent",
-              "label": null,
               "logBase": 1,
-              "max": null,
               "min": "0",
               "show": true
             },
             {
               "$$hashKey": "object:461",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
           "collapsed": false,
-          "datasource": null,
-          "fieldConfig": {
-            "defaults": {},
-            "overrides": []
+          "datasource": {
+            "type": "prometheus",
+            "uid": "tuHy3WB7z"
           },
           "gridPos": {
             "h": 1,
@@ -707,6 +721,15 @@ data:
           },
           "id": 26,
           "panels": [],
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "tuHy3WB7z"
+              },
+              "refId": "A"
+            }
+          ],
           "title": "Dependencies",
           "type": "row"
         },
@@ -715,7 +738,9 @@ data:
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "fieldConfig": {
             "defaults": {
               "links": []
@@ -760,6 +785,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(rate(uhc_auth_proxy_to_acct_mgmt_request_status{job=\"uhc-auth-proxy\", namespace=\"$namespace\"}[$__rate_interval])) by (code)",
               "interval": "1m",
@@ -768,9 +796,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Account management response code",
           "tooltip": {
             "shared": true,
@@ -779,9 +805,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
@@ -789,42 +813,33 @@ data:
             {
               "$$hashKey": "object:691",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "$$hashKey": "object:692",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
-          "cards": {
-            "cardPadding": null,
-            "cardRound": null
-          },
+          "cards": {},
           "color": {
             "cardColor": "#FF780A",
             "colorScale": "linear",
             "colorScheme": "interpolateOranges",
             "exponent": 0.9,
-            "min": null,
             "mode": "opacity"
           },
           "dataFormat": "tsbuckets",
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "gridPos": {
             "h": 8,
             "w": 12,
@@ -844,6 +859,9 @@ data:
           "reverseYBuckets": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(increase(uhc_auth_proxy_request_time_bucket{namespace=\"$namespace\"}[$__interval])) by (le)",
               "format": "heatmap",
@@ -852,7 +870,6 @@ data:
               "refId": "A"
             }
           ],
-          "timeShift": null,
           "title": "API latency to account_mgnt",
           "tooltip": {
             "show": true,
@@ -862,27 +879,18 @@ data:
           "xAxis": {
             "show": true
           },
-          "xBucketNumber": null,
-          "xBucketSize": null,
           "yAxis": {
-            "decimals": null,
             "format": "dtdurations",
             "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true,
-            "splitFactor": null
+            "show": true
           },
-          "yBucketBound": "auto",
-          "yBucketNumber": null,
-          "yBucketSize": null
+          "yBucketBound": "auto"
         },
         {
           "collapsed": false,
-          "datasource": null,
-          "fieldConfig": {
-            "defaults": {},
-            "overrides": []
+          "datasource": {
+            "type": "prometheus",
+            "uid": "tuHy3WB7z"
           },
           "gridPos": {
             "h": 1,
@@ -892,6 +900,15 @@ data:
           },
           "id": 24,
           "panels": [],
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "tuHy3WB7z"
+              },
+              "refId": "A"
+            }
+          ],
           "title": "Container Health",
           "type": "row"
         },
@@ -900,7 +917,9 @@ data:
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "description": "CPU consumption plotted against configured CPU limit of service",
           "fieldConfig": {
             "defaults": {
@@ -945,6 +964,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"$namespace\",pod=~\".*uhc-auth-proxy.*\"}[5m])) / sum(kube_pod_container_resource_limits{namespace=\"$namespace\",pod=~\".*uhc-auth-proxy.*\", resource=\"cpu\"})",
               "interval": "15s",
@@ -953,9 +975,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Percentage of CPU limit consumed",
           "tooltip": {
             "shared": true,
@@ -964,36 +984,27 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
           "yaxes": [
             {
               "$$hashKey": "object:135",
-              "decimals": null,
               "format": "percentunit",
-              "label": null,
               "logBase": 1,
-              "max": null,
               "min": "0",
               "show": true
             },
             {
               "$$hashKey": "object:136",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": false
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
@@ -1001,7 +1012,9 @@ data:
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "description": "",
           "fieldConfig": {
             "defaults": {
@@ -1046,6 +1059,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(container_memory_usage_bytes{namespace=\"$namespace\",pod=~\".*uhc-auth-proxy.*\",container=\"uhc-auth-proxy\"}) / sum(kube_pod_container_resource_limits{namespace=\"$namespace\",pod=~\".*uhc-auth-proxy.*\",container=\"uhc-auth-proxy\",resource=\"memory\", unit=\"byte\"})",
               "interval": "15s",
@@ -1054,9 +1070,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Percentage of memory limit consumed",
           "tooltip": {
             "shared": true,
@@ -1065,9 +1079,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
@@ -1076,25 +1088,19 @@ data:
               "$$hashKey": "object:166",
               "decimals": 1,
               "format": "percentunit",
-              "label": null,
               "logBase": 1,
               "max": "1",
-              "min": null,
               "show": true
             },
             {
               "$$hashKey": "object:167",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": false
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
@@ -1102,7 +1108,9 @@ data:
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "fieldConfig": {
             "defaults": {
               "links": []
@@ -1146,6 +1154,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "rate(container_cpu_usage_seconds_total{namespace=\"$namespace\",pod=~\".*uhc-auth-proxy.*\",container=\"uhc-auth-proxy\"}[5m])",
               "interval": "15s",
@@ -1154,9 +1165,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "CPU",
           "tooltip": {
             "shared": true,
@@ -1165,9 +1174,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
@@ -1175,34 +1182,28 @@ data:
             {
               "$$hashKey": "object:197",
               "format": "s",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "$$hashKey": "object:198",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
           "aliasColors": {},
           "bars": false,
-          "cacheTimeout": null,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "fieldConfig": {
             "defaults": {
               "links": []
@@ -1219,7 +1220,6 @@ data:
           },
           "hiddenSeries": false,
           "id": 9,
-          "interval": null,
           "legend": {
             "avg": false,
             "current": false,
@@ -1247,6 +1247,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "container_memory_usage_bytes{namespace=\"$namespace\",pod=~\".*uhc-auth-proxy.*\", container=\"uhc-auth-proxy\"}",
               "interval": "15s",
@@ -1255,9 +1258,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Memory",
           "tooltip": {
             "shared": true,
@@ -1266,9 +1267,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
@@ -1276,25 +1275,18 @@ data:
             {
               "$$hashKey": "object:329",
               "format": "bytes",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "$$hashKey": "object:330",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
@@ -1302,7 +1294,9 @@ data:
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "description": "Plots the number of container restarts in 5 minute chunks",
           "fieldConfig": {
             "defaults": {
@@ -1347,6 +1341,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "exemplar": true,
               "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"$namespace\",pod=~\".*uhc-auth-proxy.*\"}[5m]))",
               "interval": "15s",
@@ -1355,9 +1352,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Container Restarts",
           "tooltip": {
             "shared": true,
@@ -1366,9 +1361,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
@@ -1377,42 +1370,34 @@ data:
               "$$hashKey": "object:294",
               "decimals": 0,
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
               "min": "0",
               "show": true
             },
             {
               "$$hashKey": "object:295",
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         }
       ],
       "refresh": false,
-      "schemaVersion": 31,
+      "schemaVersion": 36,
       "style": "dark",
       "tags": [],
       "templating": {
         "list": [
           {
             "current": {
-              "selected": true,
+              "selected": false,
               "text": "crcp01ue1-prometheus",
               "value": "crcp01ue1-prometheus"
             },
-            "description": null,
-            "error": null,
             "hide": 0,
             "includeAll": false,
             "label": "Datasource",
@@ -1427,14 +1412,11 @@ data:
             "type": "datasource"
           },
           {
-            "allValue": null,
             "current": {
               "selected": true,
               "text": "uhc-auth-proxy-prod",
               "value": "uhc-auth-proxy-prod"
             },
-            "description": null,
-            "error": null,
             "hide": 0,
             "includeAll": false,
             "label": "Namespace",
@@ -1452,6 +1434,7 @@ data:
                 "value": "uhc-auth-proxy-prod"
               }
             ],
+            "query": "",
             "queryValue": "",
             "skipUrlSync": false,
             "type": "custom"
@@ -1490,7 +1473,8 @@ data:
       "timezone": "",
       "title": "uhc-auth-proxy Health",
       "uid": "NncCcICiz",
-      "version": 3
+      "version": 1,
+      "weekStart": ""
     }
 kind: ConfigMap
 metadata:
