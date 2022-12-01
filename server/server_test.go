@@ -112,7 +112,7 @@ var _ = Describe("Handler", func() {
 	})
 
 	Describe("When called with a valid request", func() {
-		validOperatorAgents := []string{"insights-operator", "cost-mgmt-operator", "marketplace-operator", "acm-operator"}
+		validOperatorAgents := []string{"insights-operator", "cost-mgmt-operator", "marketplace-operator", "acm-operator", "assisted-installer-operator"}
 		for _, a := range validOperatorAgents {
 			It(fmt.Sprintf("should return a valid Identity json for %s", a), func() {
 				_, ident := call(wrapper, fmt.Sprintf("%s/abc cluster/123", a), "Bearer mytoken")
