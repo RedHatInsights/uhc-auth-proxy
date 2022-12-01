@@ -62,13 +62,13 @@ func (c *HTTPWrapper) Do(req *http.Request, label string, cluster_id string, aut
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("request to %s failed: %d %s", req.URL.String(), resp.StatusCode, resp.Status)
-	}
-
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode >= 400 {
+		return b, fmt.Errorf("request to %s failed: %d %s", req.URL.String(), resp.StatusCode, resp.Status)
 	}
 
 	return b, nil

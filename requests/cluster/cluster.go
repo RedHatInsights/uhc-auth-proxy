@@ -23,7 +23,7 @@ func GetIdentity(wrapper client.Wrapper, reg Registration) (*Identity, error) {
 
 	acct, err := GetCurrentAccount(wrapper, reg)
 	if err != nil {
-		return nil, fmt.Errorf("got an err when calling GetCurrentAccount: %s", err)
+		return nil, fmt.Errorf("got an err when calling GetCurrentAccount: %w", err)
 	}
 
 	return &Identity{
@@ -50,6 +50,13 @@ func GetCurrentAccount(wrapper client.Wrapper, reg Registration) (*Account, erro
 
 	b, err := wrapper.Do(req, URL, reg.ClusterID, reg.AuthorizationToken)
 	if err != nil {
+		if b != nil {
+			res := &AccountError{}
+			if json.Unmarshal(b, res) == nil {
+				return nil, res
+			}
+		}
+
 		return nil, err
 	}
 

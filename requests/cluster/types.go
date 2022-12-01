@@ -3,6 +3,7 @@ package cluster
 import (
 	"encoding/json"
 	"fmt"
+	"go.uber.org/zap/zapcore"
 	"net/http"
 	"time"
 
@@ -40,13 +41,42 @@ type Org struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+// AccountError - holds error information returned from accounts endpoint if error occurred
+type AccountError struct {
+	Href        string `json:"href"`
+	ID          string `json:"id"`
+	Kind        string `json:"kind"`
+	Code        string `json:"code"`
+	OperationId string `json:"operation_id"`
+	Reason      string `json:"reason"`
+}
+
+func (a *AccountError) Error() string {
+	return "[Reason: " + a.Reason + ", Code: " + a.Code + ", ID: " + a.ID + "]"
+}
+
+func (a *AccountError) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	enc.AddString("href", a.Href)
+	enc.AddString("id", a.ID)
+	enc.AddString("kind", a.Kind)
+	enc.AddString("code", a.Code)
+	enc.AddString("operation_id", a.OperationId)
+	enc.AddString("reason", a.Reason)
+	return nil
+}
+
+func (a *AccountError) Verbose() []byte {
+	v, _ := json.Marshal(a)
+	return v
+}
+
 type Internal struct {
 	OrgID string `json:"org_id"`
 }
 
 type Identity struct {
 	AccountNumber string            `json:"account_number"`
-	OrgID string                    `json:"org_id"`
+	OrgID         string            `json:"org_id"`
 	Type          string            `json:"type"`
 	Internal      Internal          `json:"internal"`
 	System        map[string]string `json:"system,omitempty"`

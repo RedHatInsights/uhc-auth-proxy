@@ -137,7 +137,9 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 			cacheMiss.Inc()
 			ident, err := cluster.GetIdentity(wrapper, reg)
 			if err != nil {
-				logr.Error("could not authenticate given the credentials", zap.Error(err), zap.String("cluster_id", reg.ClusterID))
+				fields := []zap.Field{zap.Error(err), zap.String("cluster_id", reg.ClusterID)}
+				getErrorSpecificFields(err, &fields)
+				logr.Error("could not authenticate given the credentials", fields...)
 				respond(401)
 				fmt.Fprintf(w, "Could not authenticate: '%s'", err.Error())
 				return
@@ -156,6 +158,15 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		w.Header().Add("Content-Type", "application/json")
 		respond(200)
 		w.Write(out)
+	}
+}
+
+func getErrorSpecificFields(err error, fields *[]zap.Field) {
+	var accErr *cluster.AccountError
+
+	switch {
+	case errors.As(err, &accErr):
+		*fields = append(*fields, zap.Object("account_error_verbose", accErr))
 	}
 }
 
