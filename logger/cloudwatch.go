@@ -11,7 +11,7 @@ import (
 	"io"
 )
 
-func getCloudwatchCore(loggerCfg zap.Config) (zap.Option, error) {
+var getCloudwatchCore = func(loggerCfg zap.Config) (zap.Option, error) {
 	key := logConfig.GetString(CwAwsAccessKeyId)
 	secret := logConfig.GetString(CwAwsSecretAccessKey)
 	region := logConfig.GetString(CwAwsRegion)
