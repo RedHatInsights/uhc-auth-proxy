@@ -53,6 +53,7 @@ func GetCurrentAccount(wrapper client.Wrapper, reg Registration) (*Account, erro
 		if b != nil {
 			res := &AccountError{}
 			if json.Unmarshal(b, res) == nil {
+				res.Inner = err
 				return nil, res
 			}
 		}

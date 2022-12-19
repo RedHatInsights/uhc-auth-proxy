@@ -68,7 +68,10 @@ func (c *HTTPWrapper) Do(req *http.Request, label string, cluster_id string, aut
 	}
 
 	if resp.StatusCode >= 400 {
-		return b, fmt.Errorf("request to %s failed: %d %s", req.URL.String(), resp.StatusCode, resp.Status)
+		return b, &HttpError{
+			Message:    fmt.Sprintf("request to %s failed: %d %s", req.URL.String(), resp.StatusCode, resp.Status),
+			StatusCode: resp.StatusCode,
+		}
 	}
 
 	return b, nil

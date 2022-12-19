@@ -3,6 +3,7 @@ package cluster
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
 	"go.uber.org/zap/zapcore"
 	"net/http"
 	"time"
@@ -49,6 +50,7 @@ type AccountError struct {
 	Code        string `json:"code"`
 	OperationId string `json:"operation_id"`
 	Reason      string `json:"reason"`
+	Inner       error  `json:"-"`
 }
 
 func (a *AccountError) Error() string {
@@ -64,6 +66,8 @@ func (a *AccountError) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("reason", a.Reason)
 	return nil
 }
+
+func (a *AccountError) Unwrap() error { return a.Inner }
 
 func (a *AccountError) Verbose() []byte {
 	v, _ := json.Marshal(a)
@@ -99,4 +103,17 @@ type ErrorWrapper struct{}
 
 func (e *ErrorWrapper) Do(req *http.Request, label string, cluster_id string, authorization_token string) ([]byte, error) {
 	return nil, fmt.Errorf("errWrapper for: %s", req.URL.String())
+}
+
+type ErrorWithBodyWrapper struct {
+	AccountError *AccountError
+	StatusCode   int
+}
+
+func (e *ErrorWithBodyWrapper) Do(req *http.Request, label string, cluster_id string, authorization_token string) ([]byte, error) {
+	bytes, _ := json.Marshal(e.AccountError)
+	return bytes, &client.HttpError{
+		Message:    "error message",
+		StatusCode: e.StatusCode,
+	}
 }
