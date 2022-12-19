@@ -17,7 +17,7 @@ func InitLogger() *zap.Logger {
 		initLogConfig()
 		logLevel := getLogLevel()
 
-		cfg := zapcore.EncoderConfig{
+		encoderConfig := zapcore.EncoderConfig{
 			TimeKey:        "ts",
 			LevelKey:       "level",
 			NameKey:        "logger",
@@ -35,7 +35,7 @@ func InitLogger() *zap.Logger {
 			Level:            zap.NewAtomicLevelAt(logLevel),
 			OutputPaths:      []string{"stdout"},
 			ErrorOutputPaths: []string{"stderr"},
-			EncoderConfig:    cfg,
+			EncoderConfig:    encoderConfig,
 			InitialFields:    map[string]interface{}{"app": "uhc-auth-proxy"},
 		}
 
