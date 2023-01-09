@@ -44,14 +44,15 @@ var (
 )
 
 const (
-	insightsOperatorPrefix    = `insights-operator/`
-	costMgmtOperatorPrefix    = `cost-mgmt-operator/`
-	marketplaceOperatorPrefix = `marketplace-operator/`
-	acmOperator               = `acm-operator/`
+	insightsOperatorPrefix          = `insights-operator/`
+	costMgmtOperatorPrefix          = `cost-mgmt-operator/`
+	marketplaceOperatorPrefix       = `marketplace-operator/`
+	acmOperator                     = `acm-operator/`
+	assistedInstallerOperatorPrefix = `assisted-installer-operator/`
 )
 
 var (
-	operatorPrefixes = [4]string{insightsOperatorPrefix, costMgmtOperatorPrefix, marketplaceOperatorPrefix, acmOperator}
+	operatorPrefixes = [5]string{insightsOperatorPrefix, costMgmtOperatorPrefix, marketplaceOperatorPrefix, acmOperator, assistedInstallerOperatorPrefix}
 )
 
 // returns the cluster id from the user agent string used by the support operator
