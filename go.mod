@@ -7,7 +7,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
-	github.com/prashantv/gostub v1.1.0 // indirect
+	github.com/prashantv/gostub v1.1.0
 	github.com/prometheus/client_golang v0.9.3
 	github.com/redhatinsights/platform-go-middlewares v0.20.0
 	github.com/spf13/cobra v0.0.5
