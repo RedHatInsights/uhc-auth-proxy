@@ -1,7 +1,6 @@
 language: go
 go:
-  - 1.11.x
-  - 1.12.x
+  - 1.18.x
 
 before_install:
   - go get -t -v ./...
@@ -11,6 +10,3 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-
-env:
-  - GO111MODULE=on

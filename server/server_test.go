@@ -76,9 +76,11 @@ func call(wrapper client.Wrapper, userAgent string, auth string) (*httptest.Resp
 
 var _ = Describe("HandlerWithBadWrapper", func() {
 	var errWrapper *cluster.ErrorWrapper
+	var errWithBodyWrapper *cluster.ErrorWithBodyWrapper
 
 	BeforeEach(func() {
 		errWrapper = &cluster.ErrorWrapper{}
+		errWithBodyWrapper = &cluster.ErrorWithBodyWrapper{}
 		cache.Clear()
 	})
 
@@ -87,6 +89,34 @@ var _ = Describe("HandlerWithBadWrapper", func() {
 			rr, ident := call(errWrapper, "insights-operator/abc cluster/123", "Bearer errmytoken")
 			Expect(rr.Result().StatusCode).To(Equal(401))
 			Expect(ident).To(Equal(&cluster.Identity{}))
+		})
+	})
+
+	Describe("When GetIdentity fails with a response from openshift", func() {
+		It("should return an error with the status code from openshift", func() {
+			errWithBodyWrapper.StatusCode = 403
+
+			rr, ident := call(errWithBodyWrapper, "insights-operator/abc cluster/123", "Bearer errmytoken")
+			Expect(rr.Result().StatusCode).To(Equal(403))
+			Expect(ident).To(Equal(&cluster.Identity{}))
+		})
+
+		It("should return an error containing contextual info from the openshift error", func() {
+			errWithBodyWrapper.StatusCode = 401
+			errWithBodyWrapper.AccountError = &cluster.AccountError{
+				Href:        "href",
+				ID:          "bad id",
+				Kind:        "kind",
+				Code:        "bad code",
+				OperationId: "id",
+				Reason:      "descriptive reason",
+			}
+
+			rr, _ := call(errWithBodyWrapper, "insights-operator/abc cluster/123", "Bearer errmytoken")
+			body, _ := ioutil.ReadAll(rr.Body)
+			Expect(string(body)).To(ContainSubstring("descriptive reason"))
+			Expect(string(body)).To(ContainSubstring("bad code"))
+			Expect(string(body)).To(ContainSubstring("bad id"))
 		})
 	})
 })

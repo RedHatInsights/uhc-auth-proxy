@@ -14,6 +14,9 @@ parameters:
 - name: REPLICAS
   description: The number of replicas to use in the deployment
   value: '1'
+- name: LOG_LEVEL
+  required: true
+  value: INFO
 objects:
 - apiVersion: apps/v1
   kind: Deployment
@@ -71,6 +74,28 @@ objects:
             value: ${OPENSHIFT_API_TARGET}
           - name: SERVER_PORT
             value: '8080'
+          - name: LOG_LEVEL
+            value: ${LOG_LEVEL}
+          - name: CW_AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                key: aws_secret_access_key
+                name: cloudwatch
+          - name: CW_AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                key: aws_access_key_id
+                name: cloudwatch
+          - name: CW_AWS_REGION
+            valueFrom:
+              secretKeyRef:
+                key: aws_region
+                name: cloudwatch
+          - name: CW_LOG_GROUP
+            valueFrom:
+              secretKeyRef:
+                key: log_group_name
+                name: cloudwatch
           - name: CLIENT_ID
             valueFrom:
               secretKeyRef:

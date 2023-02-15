@@ -2,6 +2,7 @@ package logger
 
 import (
 	"flag"
+	"fmt"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -13,12 +14,10 @@ var Log *zap.Logger
 // InitLogger initializes the logger
 func InitLogger() *zap.Logger {
 	if Log == nil {
-		logLevel := zapcore.InfoLevel
-		if flag.Lookup("test.v") != nil {
-			logLevel = zapcore.FatalLevel
-		}
+		initLogConfig()
+		logLevel := getLogLevel()
 
-		cfg := zapcore.EncoderConfig{
+		encoderConfig := zapcore.EncoderConfig{
 			TimeKey:        "ts",
 			LevelKey:       "level",
 			NameKey:        "logger",
@@ -31,18 +30,51 @@ func InitLogger() *zap.Logger {
 			EncodeCaller:   zapcore.ShortCallerEncoder,
 		}
 
-		logger, _ := zap.Config{
+		loggerConfig := zap.Config{
 			Encoding:         "json",
 			Level:            zap.NewAtomicLevelAt(logLevel),
 			OutputPaths:      []string{"stdout"},
 			ErrorOutputPaths: []string{"stderr"},
-			EncoderConfig:    cfg,
+			EncoderConfig:    encoderConfig,
 			InitialFields:    map[string]interface{}{"app": "uhc-auth-proxy"},
-		}.Build()
+		}
+
+		var options []zap.Option
+
+		configureCloudwatch(&options, loggerConfig)
+
+		logger, _ := loggerConfig.Build(options...)
 
 		defer logger.Sync()
 		Log = logger
 	}
 
 	return Log
+}
+
+func getLogLevel() zapcore.Level {
+	level := logConfig.GetString(LogLevel)
+	var logLevel zapcore.Level
+	err := logLevel.UnmarshalText([]byte(level))
+	if err != nil {
+		fmt.Printf("Error reading configured log level: %s. Defaulting to info.", err)
+		logLevel = zapcore.InfoLevel
+	}
+
+	if flag.Lookup("test.v") != nil {
+		logLevel = zapcore.FatalLevel
+	}
+
+	return logLevel
+}
+
+func configureCloudwatch(options *[]zap.Option, loggerConfig zap.Config) {
+	if len(logConfig.GetString(CwAwsAccessKeyId)) > 0 {
+		cloudwatch, err := getCloudwatchCore(loggerConfig)
+		if err != nil {
+			fmt.Printf("Error configuring cloudwatch integration: %s. Skipping cloudwatch integration.\n", err)
+		} else {
+			*options = append(*options, cloudwatch)
+		}
+	}
 }

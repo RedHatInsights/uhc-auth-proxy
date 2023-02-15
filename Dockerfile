@@ -5,8 +5,6 @@
 FROM registry.redhat.io/rhel8/go-toolset:latest AS builder
 WORKDIR $GOPATH/src/mypackage/myapp/
 COPY . .
-# Use go mod
-ENV GO111MODULE=on
 # Fetch dependencies.
 # Using go get requires root.
 USER root
