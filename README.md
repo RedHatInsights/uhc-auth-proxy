@@ -17,10 +17,10 @@ to send data with no additional configuration required.
 
 ## How it works
 
-1. A request is made containing the cluster_id and authorization_token from a
+1. A request is made containing the `cluster_id` and `authorization_token` from a
    cluster
-2. The auth proxy forms an authorization header from the provided cluster_id
-   and authorization_token for a request to the OpenShift API
+2. The auth proxy forms an authorization header from the provided `cluster_id`
+   and `authorization_token` for a request to the OpenShift API
    account_management endpoint
 3. Using the data returned from the OpenShift API, an identification document
    is built and returned.
