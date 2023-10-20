@@ -18,6 +18,9 @@ source $CICD_ROOT/build.sh
 # Run unit tests
 source $APP_ROOT/unit_test.sh
 
+# Move to the bonfire virtual env
+source .bonfire_venv/bin/activate
+
 # Checkout and deploy an eph env for testing
 #source $CICD_ROOT/deploy_ephemeral_env.sh
 
