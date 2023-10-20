@@ -3,11 +3,17 @@
 set -exv
 
 export GO111MODULE="on"
-go test -v -race -covermode=atomic ./...
+go test -v -race --coverprofile=coverage.txt --covermode=atomic ./...
 result=$?
 
-# Move to the bonfire virtual env
-source .bonfire_venv/bin/activate
+if [ $result -ne 0 ]; then
+  echo '====================================='
+  echo '====  ✖ ERROR: UNIT TEST FAILED  ===='
+  echo '====================================='
+  exit 1
+fi
+
+cp coverage.txt $ARTIFACTS_DIR
 
 # If your unit tests store junit xml results, you should store them in a file matching format `artifacts/junit-*.xml`
 # If you have no junit file, use the below code to create a 'dummy' result file so Jenkins will not fail
@@ -17,10 +23,3 @@ cat << EOF > $ARTIFACTS_DIR/junit-dummy.xml
     <testcase classname="dummy" name="dummytest"/>
 </testsuite>
 EOF
-
-if [ $result -ne 0 ]; then
-  echo '====================================='
-  echo '====  ✖ ERROR: UNIT TEST FAILED  ===='
-  echo '====================================='
-  exit 1
-fi
