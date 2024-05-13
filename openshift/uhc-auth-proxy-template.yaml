@@ -155,7 +155,7 @@ parameters:
 - name: LOG_LEVEL
   required: true
   value: INFO
-  - description: cpu limit for service
+- description: cpu limit for service
   name: CPU_LIMIT
   value: 250m
 - description: memory limit for service
