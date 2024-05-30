@@ -157,13 +157,13 @@ parameters:
   value: INFO
 - description: cpu limit for service
   name: CPU_LIMIT
-  value: 250m
+  value: 150m
 - description: memory limit for service
   name: MEMORY_LIMIT
   value: 400Mi
 - description: requested cpu for service
   name: CPU_REQUESTS
-  value: 50m
+  value: 25m
 - description: requested memory for service
   name: MEMORY_REQUESTS
   value: 200Mi
