@@ -3,7 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 
@@ -66,7 +66,7 @@ func call(wrapper client.Wrapper, userAgent string, auth string) (*httptest.Resp
 	rr := httptest.NewRecorder()
 	handler := RootHandler(wrapper)
 	handler(rr, req)
-	out, err := ioutil.ReadAll(rr.Result().Body)
+	out, err := io.ReadAll(rr.Result().Body)
 	Expect(err).To(BeNil())
 	rr.Result().Body.Close()
 	var ident cluster.Identity
@@ -113,7 +113,7 @@ var _ = Describe("HandlerWithBadWrapper", func() {
 			}
 
 			rr, _ := call(errWithBodyWrapper, "insights-operator/abc cluster/123", "Bearer errmytoken")
-			body, _ := ioutil.ReadAll(rr.Body)
+			body, _ := io.ReadAll(rr.Body)
 			Expect(string(body)).To(ContainSubstring("descriptive reason"))
 			Expect(string(body)).To(ContainSubstring("bad code"))
 			Expect(string(body)).To(ContainSubstring("bad id"))
