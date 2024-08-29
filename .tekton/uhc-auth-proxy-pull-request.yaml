@@ -226,7 +226,7 @@ spec:
             set -ex
             # Execute the task
             echo "Run unit tests"
-            bash unit_test.sh
+            bash konflux_unit_test.sh
 
     - name: prefetch-dependencies
       params:
