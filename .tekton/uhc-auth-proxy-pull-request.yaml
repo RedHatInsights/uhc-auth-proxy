@@ -217,7 +217,7 @@ spec:
           # set the working directory to value from previous step
           workingDir: /var/workdir/source
           # Use image that suites your use case
-          image: FROM registry.access.redhat.com/ubi8/go-toolset:latest
+          image: registry.access.redhat.com/ubi8/go-toolset:latest
           securityContext:
           # If the task step needs write access to the volume, set the runAsUser to 0 (root).
             runAsUser: 0
