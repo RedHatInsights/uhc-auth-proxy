@@ -51,10 +51,11 @@ const (
 	assistedInstallerOperatorPrefix   = `assisted-installer-operator/`
 	cryostatOperatorPrefix            = `cryostat-operator/`
 	openshiftLightspeedOperatorPrefix = `openshift-lightspeed-operator/`
+	jwsOperatorPrefix                 = `jws-operator/`
 )
 
 var (
-	operatorPrefixes = [7]string{insightsOperatorPrefix, costMgmtOperatorPrefix, marketplaceOperatorPrefix, acmOperator, assistedInstallerOperatorPrefix, cryostatOperatorPrefix, openshiftLightspeedOperatorPrefix}
+	operatorPrefixes = [8]string{insightsOperatorPrefix, costMgmtOperatorPrefix, marketplaceOperatorPrefix, acmOperator, assistedInstallerOperatorPrefix, cryostatOperatorPrefix, openshiftLightspeedOperatorPrefix, jwsOperatorPrefix}
 )
 
 // returns the cluster id from the user agent string used by the support operator
