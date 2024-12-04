@@ -161,7 +161,10 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		w.Header().Add("Content-Type", "application/json")
 		respond(200)
-		w.Write(out)
+		_, err = w.Write(out)
+		if err != nil {
+			logr.Error("failed to write response", zap.Error(err))
+		}
 	}
 }
 
@@ -187,7 +190,10 @@ func getErrorStatusCode(err error) int {
 
 // StatusHandler handles a basic /status endpoint for information/ready checks
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(map[string]string{"status": "available"})
+	err := json.NewEncoder(w).Encode(map[string]string{"status": "available"})
+	if err != nil {
+		log.Error(fmt.Sprintf("Failed to encode response: %v", err))
+	}
 }
 
 // Start starts the server

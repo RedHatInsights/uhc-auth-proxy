@@ -5,18 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	l "github.com/redhatinsights/uhc-auth-proxy/logger"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
-
-var log *zap.Logger
-
-func init() {
-	l.InitLogger()
-	log = l.Log.Named("cluster")
-}
 
 // GetIdentity is a facade over all the steps required to get an Identity
 func GetIdentity(wrapper client.Wrapper, reg Registration) (*Identity, error) {
