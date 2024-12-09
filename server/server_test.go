@@ -70,7 +70,7 @@ func call(wrapper client.Wrapper, userAgent string, auth string) (*httptest.Resp
 	Expect(err).To(BeNil())
 	rr.Result().Body.Close()
 	var ident cluster.Identity
-	json.Unmarshal(out, &ident)
+	_ = json.Unmarshal(out, &ident)
 	return rr, &ident
 }
 
