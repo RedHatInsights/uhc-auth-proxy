@@ -1,1 +1,12 @@
-.git
+# Ignore everything
+*
+
+# ... except for
+!cache/
+!cmd/
+!logger/
+!requests/
+!server/
+!go.mod
+!go.sum
+!main.go
