@@ -20,9 +20,12 @@ var (
 		Name: "uhc_auth_proxy_request_time",
 		Help: "Time spent waiting per request per url",
 		Buckets: []float64{
-			10,
-			100,
-			1000,
+			0.1,
+			0.25,
+			0.5,
+			1,
+			2.5,
+			5,
 		},
 	}, []string{"url"})
 	acctMgmtRequest = promauto.NewCounterVec(prometheus.CounterOpts{
