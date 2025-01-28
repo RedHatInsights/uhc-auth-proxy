@@ -45,7 +45,11 @@ func InitLogger() *zap.Logger {
 
 		logger, _ := loggerConfig.Build(options...)
 
-		defer logger.Sync()
+		defer func() {
+			if err := logger.Sync(); err != nil {
+				fmt.Printf("Failed to sync logger: %v", err)
+			}
+		}()
 		Log = logger
 	}
 
