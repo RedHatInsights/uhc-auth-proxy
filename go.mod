@@ -10,7 +10,7 @@ require (
 	github.com/prashantv/gostub v1.1.0
 	github.com/prometheus/client_golang v1.17.0
 	github.com/redhatinsights/platform-go-middlewares v1.0.0
-	github.com/spf13/cobra v0.0.5
+	github.com/spf13/cobra v0.0.7
 	github.com/spf13/viper v1.6.0
 	go.uber.org/zap v1.10.0
 )
