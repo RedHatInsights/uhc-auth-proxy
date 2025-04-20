@@ -8,7 +8,7 @@ require (
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.36.2
+	github.com/onsi/gomega v1.37.0
 	github.com/prashantv/gostub v1.1.0
 	github.com/prometheus/client_golang v1.21.1
 	github.com/redhatinsights/platform-go-middlewares v1.0.0
