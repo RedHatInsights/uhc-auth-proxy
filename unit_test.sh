@@ -3,6 +3,7 @@
 set -exv
 
 export GO111MODULE="on"
+export GOTOOLCHAIN="auto"
 go test -v -race --coverprofile=coverage.txt --covermode=atomic ./...
 result=$?
 
