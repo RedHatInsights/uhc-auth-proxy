@@ -160,6 +160,8 @@ spec:
       workspaces:
       - name: basic-auth
         workspace: git-auth
+# unit tests
+    # clone repository for unit tests 
     - name: clone-repository-oci-ta
       params:
       - name: url
@@ -182,6 +184,7 @@ spec:
       workspaces:
       - name: basic-auth
         workspace: git-auth
+    # run the unit tests 
     - name: task-running-unit-tasks
       params:
       - name: SOURCE_ARTIFACT
@@ -209,6 +212,7 @@ spec:
           image: quay.io/redhat-appstudio/build-trusted-artifacts:latest@sha256:9b180776a41d9a22a1c51539f1647c60defbbd55b44bbebdd4130e33512d8b0d
           name: use-trusted-artifact
         - computeResources: {}
+        # Use image that suits use case
           image: registry.access.redhat.com/ubi9/go-toolset:9.5-1745328278
           name: task-run
           script: |
@@ -217,6 +221,7 @@ spec:
             # Execute the task
             echo "Run unit tests"
             bash konflux_unit_test.sh
+        # If task step needs write access to the volume, set the runAsUser to 0 (root).
           securityContext:
             runAsUser: 0
           workingDir: /var/workdir/source
