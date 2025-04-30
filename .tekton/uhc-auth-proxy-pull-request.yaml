@@ -160,8 +160,7 @@ spec:
       workspaces:
       - name: basic-auth
         workspace: git-auth
-# unit tests
-    # clone repository for unit tests 
+    #unit tests 
     - name: clone-repository-oci-ta
       params:
       - name: url
@@ -169,6 +168,7 @@ spec:
       - name: revision
         value: $(params.revision)
       - name: ociStorage
+        # needs to be unique storage name
         value: $(params.output-image).git
       runAfter:
       - init
@@ -182,52 +182,52 @@ spec:
           value: task
         resolver: bundles
       workspaces:
+      # use the git-auth workspace for credentials
       - name: basic-auth
         workspace: git-auth
-    # run the unit tests 
     - name: task-running-unit-tasks
-      params:
-      - name: SOURCE_ARTIFACT
-        value: $(tasks.clone-repository-oci-ta.results.SOURCE_ARTIFACT)
+      # make sure the task runs after the artifact is created
       runAfter:
-      - clone-repository-oci-ta
+        - clone-repository-oci-ta
+      params:
+        # store the trusted artifact
+        - name: SOURCE_ARTIFACT
+          value: $(tasks.clone-repository-oci-ta.results.SOURCE_ARTIFACT)
       taskSpec:
-        metadata: {}
         params:
-        - description: The Trusted Artifact URI pointing to the artifact with the
-            application source code.
-          name: SOURCE_ARTIFACT
-          type: string
-        spec: null
+          - description: The Trusted Artifact URI pointing to the artifact with the application source code.
+            name: SOURCE_ARTIFACT
+            type: string
+        volumes:
+          # New volume to store a copy of the source code accessible only to this Task.
+          - name: workdir
+            emptyDir: {}
         stepTemplate:
-          computeResources: {}
           volumeMounts:
-          - mountPath: /var/workdir
-            name: workdir
+            - mountPath: /var/workdir
+              name: workdir
         steps:
-        - args:
-          - use
-          - $(params.SOURCE_ARTIFACT)=/var/workdir/source
-          computeResources: {}
+        # Add the trusted artifact to the task volume
+        - name: use-trusted-artifact
           image: quay.io/redhat-appstudio/build-trusted-artifacts:latest@sha256:9b180776a41d9a22a1c51539f1647c60defbbd55b44bbebdd4130e33512d8b0d
-          name: use-trusted-artifact
-        - computeResources: {}
-        # Use image that suits use case
+          args:
+            - use
+            - $(params.SOURCE_ARTIFACT)=/var/workdir/source
+        - name: task-run
+          # set the working directory to value from previous step
+          workingDir: /var/workdir/source
+          # Use image that suites your use case
           image: registry.access.redhat.com/ubi9/go-toolset:9.5-1745328278
-          name: task-run
+          securityContext:
+          # If the task step needs write access to the volume, set the runAsUser to 0 (root).
+            runAsUser: 0
           script: |
             #!/bin/bash
             set -ex
             # Execute the task
             echo "Run unit tests"
             bash konflux_unit_test.sh
-        # If task step needs write access to the volume, set the runAsUser to 0 (root).
-          securityContext:
-            runAsUser: 0
-          workingDir: /var/workdir/source
-        volumes:
-        - emptyDir: {}
-          name: workdir
+
     - name: prefetch-dependencies
       params:
       - name: input
@@ -331,7 +331,7 @@ spec:
       - name: image-url
         value: $(tasks.build-container.results.IMAGE_URL)
       - name: fail-unsigned
-        value: "true"
+        value: true
       runAfter:
       - build-container
       taskRef:
@@ -351,6 +351,7 @@ spec:
         value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
       - name: CACHI2_ARTIFACT
         value: $(tasks.prefetch-dependencies.results.CACHI2_ARTIFACT)
+
       runAfter:
       - build-image-index
       taskRef:
@@ -373,56 +374,58 @@ spec:
         - "true"
     - name: sast-shell-check
       params:
-      - name: image-digest
-        value: $(tasks.build-image-index.results.IMAGE_DIGEST)
-      - name: image-url
-        value: $(tasks.build-image-index.results.IMAGE_URL)
-      - name: SOURCE_ARTIFACT
-        value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
-      - name: CACHI2_ARTIFACT
-        value: $(tasks.prefetch-dependencies.results.CACHI2_ARTIFACT)
+        - name: image-digest
+          value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+        - name: image-url
+          value: $(tasks.build-image-index.results.IMAGE_URL)
+        - name: SOURCE_ARTIFACT
+          value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
+        - name: CACHI2_ARTIFACT
+          value: $(tasks.prefetch-dependencies.results.CACHI2_ARTIFACT)
       runAfter:
-      - build-image-index
+        - build-image-index
       taskRef:
         params:
-        - name: name
-          value: sast-shell-check-oci-ta
-        - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-sast-shell-check-oci-ta:0.1@sha256:57b3262138eb06186ae7375f84ca53788bba2a66cfd03d39cb82c78df050aba5
-        - name: kind
-          value: task
+          - name: name
+            value: sast-shell-check-oci-ta
+          - name: bundle
+            value: quay.io/konflux-ci/tekton-catalog/task-sast-shell-check-oci-ta:0.1@sha256:57b3262138eb06186ae7375f84ca53788bba2a66cfd03d39cb82c78df050aba5
+          - name: kind
+            value: task
         resolver: bundles
       when:
-      - input: $(params.skip-checks)
-        operator: in
-        values:
-        - "false"
+        - input: $(params.skip-checks)
+          operator: in
+          values:
+            - "false"
+      workspaces: []
     - name: sast-unicode-check
       params:
-      - name: image-url
-        value: $(tasks.build-image-index.results.IMAGE_URL)
-      - name: image-digest
-        value: $(tasks.build-image-index.results.IMAGE_DIGEST)
-      - name: SOURCE_ARTIFACT
-        value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
-      - name: CACHI2_ARTIFACT
-        value: $(tasks.prefetch-dependencies.results.CACHI2_ARTIFACT)
+        - name: image-url
+          value: $(tasks.build-image-index.results.IMAGE_URL)
+        - name: image-digest
+          value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+        - name: SOURCE_ARTIFACT
+          value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
+        - name: CACHI2_ARTIFACT
+          value: $(tasks.prefetch-dependencies.results.CACHI2_ARTIFACT)
       runAfter:
-      - build-image-index
+        - build-image-index
       taskRef:
         params:
-        - name: name
-          value: sast-unicode-check-oci-ta
-        - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-sast-unicode-check-oci-ta:0.2@sha256:df185dbe4e2852668f9c46f938dd752e90ea9c79696363378435a6499596c319
-        - name: kind
-          value: task
+          - name: name
+            value: sast-unicode-check-oci-ta
+          - name: bundle
+            value: quay.io/konflux-ci/tekton-catalog/task-sast-unicode-check-oci-ta:0.2@sha256:df185dbe4e2852668f9c46f938dd752e90ea9c79696363378435a6499596c319
+          - name: kind
+            value: task
         resolver: bundles
       when:
-      - input: $(params.skip-checks)
-        operator: in
-        values:
-        - "false"
+        - input: $(params.skip-checks)
+          operator: in
+          values:
+            - "false"
+      workspaces: []
     - name: deprecated-base-image-check
       params:
       - name: IMAGE_URL
@@ -578,8 +581,7 @@ spec:
       optional: true
     - name: netrc
       optional: true
-  taskRunTemplate:
-    serviceAccountName: build-pipeline-uhc-auth-proxy
+  taskRunTemplate: {}
   workspaces:
   - name: git-auth
     secret:
