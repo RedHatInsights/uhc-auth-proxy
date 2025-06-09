@@ -12,7 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/redhatinsights/platform-go-middlewares/request_id"
+	"github.com/redhatinsights/platform-go-middlewares/v2/request_id"
 	"github.com/redhatinsights/uhc-auth-proxy/cache"
 	l "github.com/redhatinsights/uhc-auth-proxy/logger"
 	"github.com/redhatinsights/uhc-auth-proxy/requests/client"
