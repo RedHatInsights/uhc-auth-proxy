@@ -142,7 +142,7 @@ objects:
     type: ClusterIP
 parameters:
 - name: REGISTRY_IMG
-  required: true
+  required: false
 - name: CHANNEL
   value: staging
 - name: IMAGE_TAG
