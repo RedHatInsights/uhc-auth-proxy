@@ -10,7 +10,7 @@ require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.38.2
 	github.com/prashantv/gostub v1.1.0
-	github.com/prometheus/client_golang v1.23.0
+	github.com/prometheus/client_golang v1.23.2
 	github.com/redhatinsights/platform-go-middlewares/v2 v2.0.0
 	github.com/spf13/cobra v1.10.1
 	github.com/spf13/viper v1.20.1
