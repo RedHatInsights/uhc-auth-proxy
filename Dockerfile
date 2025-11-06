@@ -2,7 +2,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM registry.access.redhat.com/ubi9/go-toolset:9.6-1760420453 AS builder
+FROM registry.access.redhat.com/ubi9/go-toolset:9.6-1762373805 AS builder
 WORKDIR $GOPATH/src/mypackage/myapp/
 COPY . .
 # Fetch dependencies.
