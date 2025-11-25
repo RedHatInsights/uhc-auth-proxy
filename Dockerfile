@@ -3,6 +3,21 @@
 # STEP 1 build executable binary
 ############################
 FROM registry.access.redhat.com/ubi9/go-toolset:9.7-1763633888 AS builder
+
+LABEL name="uhc-auth-proxy" \
+      summary="UHC Auth Proxy - OpenShift Cluster Authentication Service" \
+      description="Authentication proxy service for OpenShift 4 clusters. Validates cluster_id and authorization_token against UHC services to enable insights-operator and other operators to send data without storing SSO credentials in clusters." \
+      io.k8s.description="Authentication proxy service for OpenShift 4 clusters. Validates cluster_id and authorization_token against UHC services to enable insights-operator and other operators to send data without storing SSO credentials in clusters." \
+      io.k8s.display-name="UHC Auth Proxy" \
+      io.openshift.tags="insights,uhc,auth,proxy,authentication,openshift,cluster" \
+      com.redhat.component="uhc-auth-proxy" \
+      version="1.0" \
+      release="1" \
+      vendor="Red Hat, Inc." \
+      url="https://github.com/redhatinsights/uhc-auth-proxy" \
+      distribution-scope="private" \
+      maintainer="platform-accessmanagement@redhat.com"
+
 WORKDIR $GOPATH/src/mypackage/myapp/
 COPY . .
 # Fetch dependencies.
