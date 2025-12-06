@@ -2,7 +2,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM registry.access.redhat.com/ubi9/go-toolset:9.7-1763633888 AS builder
+FROM registry.access.redhat.com/ubi9/go-toolset:9.7-1764620329 AS builder
 
 LABEL name="uhc-auth-proxy" \
       summary="UHC Auth Proxy - OpenShift Cluster Authentication Service" \
