@@ -2,7 +2,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM registry.access.redhat.com/ubi9/go-toolset:9.7-1763633888 AS builder
+FROM registry.access.redhat.com/ubi9/go-toolset:9.7-1765181732 AS builder
 
 LABEL name="uhc-auth-proxy" \
       summary="UHC Auth Proxy - OpenShift Cluster Authentication Service" \
@@ -23,6 +23,14 @@ COPY . .
 # Fetch dependencies.
 # Using go get requires root.
 USER root
+
+# Install Go 1.25.5 to address CVE-2025-61729 and CVE-2025-61727 (Until new ubi9 minimal image supports this go version)
+RUN curl -LO https://go.dev/dl/go1.25.5.linux-amd64.tar.gz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf go1.25.5.linux-amd64.tar.gz && \
+    rm go1.25.5.linux-amd64.tar.gz
+ENV PATH="/usr/local/go/bin:${PATH}"
+
 RUN go get -d -v
 # Build the binary.
 RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
