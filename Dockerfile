@@ -38,6 +38,13 @@ RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 # STEP 2 build a small image
 ############################
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1769056855
+
+# Update vulnerable packages to address security vulnerabilities:
+# - curl-minimal/libcurl-minimal: CVE-2025-9086 (Medium)
+# - openssl-libs: CVE-2025-15467 (High), CVE-2025-69419, CVE-2025-11187 (Medium)
+RUN microdnf update -y curl-minimal libcurl-minimal openssl-libs && \
+    microdnf clean all
+
 # Copy our static executable.
 COPY --from=builder /go/bin/uhc-auth-proxy /go/bin/uhc-auth-proxy
 # Default port
