@@ -24,11 +24,11 @@ COPY . .
 # Using go get requires root.
 USER root
 
-# Install Go 1.25.5 to address CVE-2025-61729 and CVE-2025-61727 (Until new ubi9 minimal image supports this go version)
-RUN curl -LO https://go.dev/dl/go1.25.5.linux-amd64.tar.gz && \
+# Install Go 1.25.6 to address CVE-2025-68119, CVE-2025-61731, CVE-2025-61726, CVE-2025-61730, CVE-2025-61728 (Until new ubi9 minimal image supports this go version)
+RUN curl -LO https://go.dev/dl/go1.25.6.linux-amd64.tar.gz && \
     rm -rf /usr/local/go && \
-    tar -C /usr/local -xzf go1.25.5.linux-amd64.tar.gz && \
-    rm go1.25.5.linux-amd64.tar.gz
+    tar -C /usr/local -xzf go1.25.6.linux-amd64.tar.gz && \
+    rm go1.25.6.linux-amd64.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 RUN go get -d -v
@@ -37,7 +37,7 @@ RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 ############################
 # STEP 2 build a small image
 ############################
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1769056855
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1770267347
 
 # Update vulnerable packages to address security vulnerabilities:
 # - curl-minimal/libcurl-minimal: CVE-2025-9086 (Medium)
