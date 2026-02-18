@@ -1,6 +1,6 @@
 module github.com/redhatinsights/uhc-auth-proxy
 
-go 1.25.3
+go 1.25.7
 
 require (
 	github.com/RedHatInsights/cloudwatch v0.0.0-20210111105023-1df2bdfe3291
