@@ -37,7 +37,7 @@ RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 ############################
 # STEP 2 build a small image
 ############################
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1770267347
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1771346502
 
 # Update vulnerable packages to address security vulnerabilities:
 # - curl-minimal/libcurl-minimal: CVE-2025-9086 (Medium)
