@@ -38,7 +38,7 @@ RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 ############################
 # STEP 2 build a small image
 ############################
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1773939694
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1775623882
 
 # Update libarchive to address CVE-2026-4111
 RUN microdnf update -y libarchive && microdnf clean all
