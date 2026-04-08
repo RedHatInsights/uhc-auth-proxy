@@ -142,7 +142,7 @@ objects:
     type: ClusterIP
 parameters:
 - name: REGISTRY_IMG
-  required: false
+  value: quay.io/redhat-user-workloads/hcc-accessmanagement-tenant/uhc-auth-proxy/uhc-auth-proxy
 - name: CHANNEL
   value: staging
 - name: IMAGE_TAG
