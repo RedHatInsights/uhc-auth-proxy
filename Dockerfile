@@ -24,11 +24,6 @@ COPY . .
 # Using go get requires root.
 USER root
 
-# Install Go 1.25.8 to address CVE-2026-25679, CVE-2026-27142, CVE-2026-27139
-ENV GO_VERSION=1.25.8
-RUN curl -LO https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
-    tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz && \
-    rm go${GO_VERSION}.linux-amd64.tar.gz
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 
