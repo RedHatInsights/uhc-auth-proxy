@@ -24,6 +24,11 @@ COPY . .
 # Using go get requires root.
 USER root
 
+# Install Go 1.25.9 to address CVEs
+ENV GO_VERSION=1.25.9
+RUN curl -LO https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz && \
+    rm go${GO_VERSION}.linux-amd64.tar.gz
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 
@@ -34,9 +39,6 @@ RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 # STEP 2 build a small image
 ############################
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1776104705
-
-# Update libarchive to address CVE-2026-4111
-RUN microdnf update -y libarchive && microdnf clean all
 
 # Copy our static executable.
 COPY --from=builder /go/bin/uhc-auth-proxy /go/bin/uhc-auth-proxy
