@@ -91,7 +91,7 @@ objects:
               secretKeyRef:
                 key: client_secret
                 name: uhc-auth-proxy-secret
-          image: ${IMAGE}
+          image: ${REGISTRY_IMG}:${IMAGE_TAG}
           imagePullPolicy: Always
           name: uhc-auth-proxy
           livenessProbe:
@@ -141,10 +141,12 @@ objects:
     sessionAffinity: None
     type: ClusterIP
 parameters:
-- name: IMAGE
-  description: Full image reference (registry/repo@sha256:digest or registry/repo:tag)
-  required: true
-  value: quay.io/redhat-services-prod/hcc-accessmanagement-tenant/uhc-auth-proxy:latest
+- name: REGISTRY_IMG
+  required: false
+- name: CHANNEL
+  value: staging
+- name: IMAGE_TAG
+  value: latest
 - name: OPENSHIFT_API_TARGET
   value: https://api.openshift.com/api/accounts_mgmt/v1/current_account
 - name: REPLICAS
