@@ -63,7 +63,7 @@ func (c *HTTPWrapper) Do(req *http.Request, label string, cluster_id string, aut
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {

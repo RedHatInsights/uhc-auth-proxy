@@ -68,7 +68,7 @@ func call(wrapper client.Wrapper, userAgent string, auth string) (*httptest.Resp
 	handler(rr, req)
 	out, err := io.ReadAll(rr.Result().Body)
 	Expect(err).To(BeNil())
-	rr.Result().Body.Close()
+	_ = rr.Result().Body.Close()
 	var ident cluster.Identity
 	_ = json.Unmarshal(out, &ident)
 	return rr, &ident
