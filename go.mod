@@ -3,11 +3,11 @@ module github.com/redhatinsights/uhc-auth-proxy
 go 1.25.8
 
 require (
+	github.com/EvanCasey13/cloudwatch-v2 v0.0.0-20260417141546-6ee0833a4690
 	github.com/aws/aws-sdk-go-v2 v1.41.5
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.14
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.69.0
 	github.com/go-chi/chi/v5 v5.2.5
-	github.com/lzap/cloudwatchwriter2 v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.39.1

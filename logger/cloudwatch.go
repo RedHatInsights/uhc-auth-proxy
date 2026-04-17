@@ -1,12 +1,12 @@
 package logger
 
 import (
-	"time"
+	"io"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
-	cww "github.com/lzap/cloudwatchwriter2"
+	cloudwatch "github.com/EvanCasey13/cloudwatch-v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -24,7 +24,8 @@ var getCloudwatchCore = func(loggerCfg zap.Config) (zap.Option, error) {
 			credentials.NewStaticCredentialsProvider(key, secret, "")),
 	})
 
-	cwWriter, err := cww.NewWithClient(client, 500*time.Millisecond, group, stream)
+	cwGroup := cloudwatch.NewGroup(group, client)
+	cwWriter, err := cwGroup.Create(stream)
 	if err != nil {
 		return nil, err
 	}
@@ -42,15 +43,19 @@ var getCloudwatchCore = func(loggerCfg zap.Config) (zap.Option, error) {
 	return cwOption, nil
 }
 
-func wrapWriter(w *cww.CloudWatchWriter) zapcore.WriteSyncer {
-	return &writerWrapper{w}
+func wrapWriter(w io.Writer) zapcore.WriteSyncer {
+	switch w := w.(type) {
+	case *cloudwatch.Writer:
+		return &writerWrapper{w}
+	default:
+		return zapcore.AddSync(w)
+	}
 }
 
 type writerWrapper struct {
-	*cww.CloudWatchWriter
+	*cloudwatch.Writer
 }
 
 func (w writerWrapper) Sync() error {
-	w.Flush()
-	return nil
+	return w.Flush()
 }
