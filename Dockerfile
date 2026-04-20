@@ -38,7 +38,7 @@ RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 ############################
 # STEP 2 build a small image
 ############################
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1776104705
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7-1776645941
 
 # Copy our static executable.
 COPY --from=builder /go/bin/uhc-auth-proxy /go/bin/uhc-auth-proxy
