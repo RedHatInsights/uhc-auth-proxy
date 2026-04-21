@@ -31,7 +31,7 @@ func fetch(offlineAccessToken string) (*response, error) {
 	}
 
 	body, err := io.ReadAll(resp.Body)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}

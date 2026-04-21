@@ -108,7 +108,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		if err != nil {
 			logr.Error("Failed to get the cluster id", zap.Error(err))
 			respond(400)
-			fmt.Fprintf(w, "Invalid user-agent: '%s'", err.Error())
+			_, _ = fmt.Fprintf(w, "Invalid user-agent: '%s'", err.Error())
 			return
 		}
 
@@ -116,7 +116,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		if err != nil {
 			logr.Error("Failed to get the token", zap.Error(err))
 			respond(400)
-			fmt.Fprintf(w, "Invalid authorization header: '%s'", err.Error())
+			_, _ = fmt.Fprintf(w, "Invalid authorization header: '%s'", err.Error())
 			return
 		}
 
@@ -129,7 +129,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 		if err != nil {
 			logr.Error("could not form a valid cluster registration object", zap.Error(err))
 			respond(500)
-			fmt.Fprintf(w, "Could not form valid cluster registration object: '%s'", err.Error())
+			_, _ = fmt.Fprintf(w, "Could not form valid cluster registration object: '%s'", err.Error())
 			return
 		}
 		out := cache.Get(key)
@@ -146,7 +146,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 				getErrorSpecificFields(err, &fields)
 				logr.Error("could not authenticate given the credentials", fields...)
 				respond(getErrorStatusCode(err))
-				fmt.Fprintf(w, "Could not authenticate: '%s'", err.Error())
+				_, _ = fmt.Fprintf(w, "Could not authenticate: '%s'", err.Error())
 				return
 			}
 
@@ -154,7 +154,7 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 			if err != nil {
 				logr.Error("Failed to marshal identity", zap.Error(err))
 				respond(500)
-				fmt.Fprintf(w, "Unable to read identity: '%s'", err.Error())
+				_, _ = fmt.Fprintf(w, "Unable to read identity: '%s'", err.Error())
 				return
 			}
 			cache.Set(key, out)

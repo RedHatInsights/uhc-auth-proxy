@@ -1,14 +1,14 @@
 package logger
 
 import (
-	"github.com/RedHatInsights/cloudwatch"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
+	"io"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
+	cloudwatch "github.com/RedHatInsights/cloudwatch-v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"io"
 )
 
 var getCloudwatchCore = func(loggerCfg zap.Config) (zap.Option, error) {
@@ -18,14 +18,13 @@ var getCloudwatchCore = func(loggerCfg zap.Config) (zap.Option, error) {
 	group := logConfig.GetString(CwLogGroup)
 	stream := logConfig.GetString(CwLogStream)
 
-	awsConf := aws.NewConfig().
-		WithCredentials(credentials.NewStaticCredentials(key, secret, "")).
-		WithRegion(region)
+	client := cloudwatchlogs.New(cloudwatchlogs.Options{
+		Region: region,
+		Credentials: aws.NewCredentialsCache(
+			credentials.NewStaticCredentialsProvider(key, secret, "")),
+	})
 
-	cloudWatchSession := session.Must(session.NewSession(awsConf))
-	cloudWatchClient := cloudwatchlogs.New(cloudWatchSession)
-
-	cwGroup := cloudwatch.NewGroup(group, cloudWatchClient)
+	cwGroup := cloudwatch.NewGroup(group, client)
 	cwWriter, err := cwGroup.Create(stream)
 	if err != nil {
 		return nil, err
@@ -57,7 +56,6 @@ type writerWrapper struct {
 	*cloudwatch.Writer
 }
 
-// Sync - this method is required by zapcore
 func (w writerWrapper) Sync() error {
 	return w.Flush()
 }
