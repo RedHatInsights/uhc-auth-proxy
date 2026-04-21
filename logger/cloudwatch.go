@@ -6,7 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
-	cloudwatch "github.com/EvanCasey13/cloudwatch-v2"
+	cloudwatch "github.com/RedHatInsights/cloudwatch-v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
