@@ -2,7 +2,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM registry.access.redhat.com/ubi9/go-toolset:9.7-1776962329 AS builder
+FROM registry.access.redhat.com/ubi9/go-toolset:9.7-1777043046 AS builder
 
 LABEL name="uhc-auth-proxy" \
       summary="UHC Auth Proxy - OpenShift Cluster Authentication Service" \
@@ -23,12 +23,6 @@ COPY . .
 # Fetch dependencies.
 # Using go get requires root.
 USER root
-
-# Install Go 1.25.9 to address CVEs
-ENV GO_VERSION=1.25.9
-RUN curl -LO https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
-    tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz && \
-    rm go${GO_VERSION}.linux-amd64.tar.gz
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 
