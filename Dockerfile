@@ -24,6 +24,13 @@ COPY . .
 # Using go get requires root.
 USER root
 
+# TODO: Remove once base image includes Go 1.25.10
+ENV GO_VERSION=1.25.10
+RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tar.gz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf /tmp/go.tar.gz && \
+    rm /tmp/go.tar.gz
+
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 RUN go get -d -v
