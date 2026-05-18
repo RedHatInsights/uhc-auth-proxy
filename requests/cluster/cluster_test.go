@@ -2,7 +2,7 @@ package cluster_test
 
 import (
 	"errors"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "github.com/redhatinsights/uhc-auth-proxy/requests/cluster"
 )
