@@ -55,3 +55,6 @@ require (
 	golang.org/x/tools v0.45.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 )
+
+// CVE-2026-5160: XSS in goldmark < 1.7.17 (transitive via golang.org/x/tools)
+replace github.com/yuin/goldmark => github.com/yuin/goldmark v1.7.17
