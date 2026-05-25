@@ -39,7 +39,7 @@ RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 ############################
 # STEP 2 build a small image
 ############################
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1777460003
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1779709832
 
 # CVE-2026-40356, CVE-2026-40355 (krb5-libs), CVE-2025-14087, CVE-2025-14512 (glib2), CVE-2026-4878 (libcap)
 RUN microdnf update -y krb5-libs glib2 libcap && microdnf clean all
