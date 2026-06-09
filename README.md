@@ -113,3 +113,54 @@ To run tests locally:
 ```
 $ go test -v ./...
 ```
+
+## Tech Stack
+
+| Concern | Library |
+|---------|---------|
+| HTTP router | [go-chi/chi v5](https://github.com/go-chi/chi) |
+| CLI framework | [spf13/cobra](https://github.com/spf13/cobra) |
+| Configuration | [spf13/viper](https://github.com/spf13/viper) |
+| Structured logging | [go.uber.org/zap](https://pkg.go.dev/go.uber.org/zap) |
+| Metrics | [prometheus/client_golang](https://github.com/prometheus/client_golang) |
+| Test framework | [onsi/ginkgo v2](https://onsi.github.io/ginkgo/) + [onsi/gomega](https://onsi.github.io/gomega/) |
+| RH platform middleware | [redhatinsights/platform-go-middlewares v2](https://github.com/RedHatInsights/platform-go-middlewares) |
+| CloudWatch logging | [RedHatInsights/cloudwatch-v2](https://github.com/RedHatInsights/cloudwatch-v2) |
+
+## Project Structure
+
+```
+main.go                     # Entrypoint — delegates to cmd.Execute()
+cmd/
+  root.go                   # Cobra root command, Viper config init
+  start.go                  # `start` subcommand — launches the HTTP server
+  run.go                    # `run` subcommand — CLI one-shot identity fetch
+server/
+  server.go                 # chi router, middleware stack, RootHandler, Prometheus counters
+cache/
+  cache.go                  # In-memory TTL cache (2-hour expiry, mutex-guarded)
+requests/
+  client/
+    wrapper.go              # HTTPWrapper / Wrapper interface — all outbound HTTP
+    access.go               # SSO token refresh with mutex-guarded caching
+    config.go               # Viper defaults for ACCESS_TOKEN_URL, TIMEOUT_SECONDS
+    types.go                # HttpError type
+  cluster/
+    cluster.go              # GetIdentity / GetCurrentAccount facade
+    types.go                # Registration, Account, Identity, test fakes
+    config.go               # Viper defaults for UHC API URLs
+logger/
+  logger.go                 # zap JSON logger with optional CloudWatch tee
+```
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [AGENTS.md](AGENTS.md) | Orientation for AI agents and contributors: repo layout, cross-cutting conventions, architectural notes, and common pitfalls |
+| [docs/security-guidelines.md](docs/security-guidelines.md) | Token handling, user-agent validation, credential flow, and secrets management |
+| [docs/performance-guidelines.md](docs/performance-guidelines.md) | In-memory cache behavior, shared HTTP client, mutex patterns, and Prometheus metrics |
+| [docs/error-handling-guidelines.md](docs/error-handling-guidelines.md) | Custom error types, wrapping conventions, and HTTP status code propagation |
+| [docs/api-contracts-guidelines.md](docs/api-contracts-guidelines.md) | Endpoint contracts, accepted user-agents, and identity payload shape |
+| [docs/testing-guidelines.md](docs/testing-guidelines.md) | Ginkgo v2 / Gomega conventions, test wrappers, and cache clearing between tests |
+| [docs/integration-guidelines.md](docs/integration-guidelines.md) | External HTTP call patterns, UHC account management API interaction, and the `client.Wrapper` interface |
