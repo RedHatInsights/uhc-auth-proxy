@@ -2,7 +2,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM registry.access.redhat.com/ubi9/go-toolset:9.8-1777889793 AS builder
+FROM registry.access.redhat.com/ubi9/go-toolset:9.8-1781070142 AS builder
 
 LABEL name="uhc-auth-proxy" \
       summary="UHC Auth Proxy - OpenShift Cluster Authentication Service" \
@@ -24,8 +24,8 @@ COPY . .
 # Using go get requires root.
 USER root
 
-# TODO: Remove once base image includes Go 1.26.3
-ENV GO_VERSION=1.26.3
+# TODO: Remove once base image includes Go 1.26.4
+ENV GO_VERSION=1.26.4
 RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tar.gz && \
     rm -rf /usr/local/go && \
     tar -C /usr/local -xzf /tmp/go.tar.gz && \
@@ -39,10 +39,7 @@ RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 ############################
 # STEP 2 build a small image
 ############################
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1779809423
-
-# CVE-2026-40356, CVE-2026-40355 (krb5-libs), CVE-2025-14087, CVE-2025-14512 (glib2), CVE-2026-4878 (libcap)
-RUN microdnf update -y krb5-libs glib2 libcap && microdnf clean all
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1781496742
 
 # Copy our static executable.
 COPY --from=builder /go/bin/uhc-auth-proxy /go/bin/uhc-auth-proxy
