@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(git revert:*)",
+      "Bash(go get:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(gh pr view:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(go list:*)",
+      "Bash(go mod graph:*)",
+      "Bash(git fetch *)",
+      "Bash(gh repo *)",
+      "Bash(gh api *)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(go mod *)",
+      "Bash(curl -s \"https://api.github.com/repos/lzap/cloudwatchwriter2/contents\")",
+      "WebFetch(domain:api.github.com)",
+      "Bash(go build *)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(go test *)",
+      "Bash(golangci-lint run *)",
+      "Bash(GOPROXY=direct go get github.com/EvanCasey13/cloudwatch-v2@latest)",
+      "Bash(GOPROXY=direct go list -m -versions github.com/RedHatInsights/cloudwatch-v2@latest)",
+      "Bash(GOPROXY=direct go get github.com/RedHatInsights/cloudwatch-v2@latest)",
+      "Bash(GOPROXY=direct go get *)",
+      "Bash(findstr goldmark *)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
