@@ -24,8 +24,6 @@ COPY . .
 # Using go get requires root.
 USER root
 
-ENV PATH="/usr/local/go/bin:${PATH}"
-
 RUN go get -d -v
 # Build the binary.
 RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
