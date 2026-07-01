@@ -103,9 +103,9 @@ Rules:
 ## 11. Dockerfile Security
 
 Rules:
-- The final image uses `ubi9/ubi-minimal`, not a full OS image. Do not switch to a larger base without justification.
+- The build uses Hummingbird FIPS-compliant images: `hi/go:1.26.4-fips-builder` for building and `hi/core-runtime:2.42-openssl-fips` for runtime. Do not switch to non-FIPS images without security approval.
+- FIPS 140 mode is enabled via `GODEBUG=fips140=on`. This environment variable must remain set in the final image.
 - The binary is built with `CGO_ENABLED=0` for a static binary. Do not enable CGO unless absolutely necessary.
-- CVE patches for base image packages are applied via `microdnf update` for specific packages. When adding CVE fixes, target only the affected packages rather than running a blanket `microdnf update`.
 - The build stage runs as `root` for dependency fetching and compilation. The final stage does not set a USER directive — consider adding `USER 1001` if the deployment does not already enforce a non-root security context.
 
 ## 12. Dependency Management

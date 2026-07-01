@@ -61,7 +61,7 @@ Structured JSON logging via `zap`. Each package creates a named child logger (`l
 
 ### Build and CI
 
-- **Dockerfile**: Multi-stage build using `ubi9/go-toolset` builder and `ubi9/ubi-minimal` runtime.
+- **Dockerfile**: Multi-stage build using Hummingbird FIPS images (`hi/go:1.26.4-fips-builder` and `hi/core-runtime:2.42-openssl-fips`). FIPS mode is enabled via `GODEBUG=fips140=on`.
 - **Konflux/Tekton**: Pipelines in `.tekton/`. Unit tests run via `konflux_unit_test.sh` with `-race` and coverage.
 - **GitHub Actions**: `golangci-lint` on PRs. No Makefile — build with `go build`, test with `go test -v ./...`.
 

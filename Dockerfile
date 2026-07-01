@@ -2,7 +2,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM registry.access.redhat.com/ubi9/go-toolset:9.8-1782377916 AS builder
+FROM registry.access.redhat.com/hi/go:1.26.4-fips-builder AS builder
 
 LABEL name="uhc-auth-proxy" \
       summary="UHC Auth Proxy - OpenShift Cluster Authentication Service" \
@@ -24,13 +24,6 @@ COPY . .
 # Using go get requires root.
 USER root
 
-# TODO: Remove once base image includes Go 1.26.4
-ENV GO_VERSION=1.26.4
-RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tar.gz && \
-    rm -rf /usr/local/go && \
-    tar -C /usr/local -xzf /tmp/go.tar.gz && \
-    rm /tmp/go.tar.gz
-
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 RUN go get -d -v
@@ -39,11 +32,12 @@ RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 ############################
 # STEP 2 build a small image
 ############################
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1782797275
+FROM registry.access.redhat.com/hi/core-runtime:2.42-openssl-fips
 
 # Copy our static executable.
 COPY --from=builder /go/bin/uhc-auth-proxy /go/bin/uhc-auth-proxy
 # Default port
 # EXPOSE 8080/tcp
 # Run the hello binary.
+ENV GODEBUG=fips140=on
 ENTRYPOINT ["/go/bin/uhc-auth-proxy", "start"]
