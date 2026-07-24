@@ -1,8 +1,9 @@
 name: Check Quay Image
 
-check_run:
-  types:
-    - completed
+on:
+  check_run:
+    types:
+      - completed
 
 jobs:
   check-image:
