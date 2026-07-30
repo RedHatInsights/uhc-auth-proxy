@@ -206,3 +206,28 @@ var _ = Describe("ClusterRegistration", func() {
 		})
 	})
 })
+
+var _ = Describe("StatusHandler", func() {
+	Describe("When called with a GET request", func() {
+		It("should return 200 with available status JSON", func() {
+			req, err := http.NewRequest("GET", "/status", nil)
+			Expect(err).To(BeNil())
+			rr := httptest.NewRecorder()
+			StatusHandler(rr, req)
+			Expect(rr.Code).To(Equal(200))
+
+			var body map[string]string
+			err = json.NewDecoder(rr.Body).Decode(&body)
+			Expect(err).To(BeNil())
+			Expect(body).To(Equal(map[string]string{"status": "available"}))
+		})
+
+		It("should set Content-Type to application/json", func() {
+			req, err := http.NewRequest("GET", "/status", nil)
+			Expect(err).To(BeNil())
+			rr := httptest.NewRecorder()
+			StatusHandler(rr, req)
+			Expect(rr.Header().Get("Content-Type")).To(Equal("application/json"))
+		})
+	})
+})
