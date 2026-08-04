@@ -25,14 +25,16 @@ var _ = Describe("Server", func() {
 	})
 
 	Describe("When passed an invalid user-agent header", func() {
-		It("should return an error", func() {
+		It("should return a static error without leaking the user-agent value", func() {
 			clusterID, err := getClusterID("not_even_close")
 			Expect(clusterID).To(Equal(""))
-			Expect(err).To(Not(BeNil()))
+			Expect(err).To(MatchError("invalid user-agent"))
+			Expect(err.Error()).ToNot(ContainSubstring("not_even_close"))
 
 			clusterID, err = getClusterID("insights-operator/abc junk")
 			Expect(clusterID).To(Equal(""))
-			Expect(err).To(Not(BeNil()))
+			Expect(err).To(MatchError("invalid user-agent"))
+			Expect(err.Error()).ToNot(ContainSubstring("junk"))
 		})
 	})
 
@@ -45,14 +47,42 @@ var _ = Describe("Server", func() {
 	})
 
 	Describe("When passed an invalid auth header", func() {
-		It("should return an error", func() {
+		It("should return a static error without leaking the header value", func() {
 			token, err := getToken("not_even_close")
 			Expect(token).To(Equal(""))
-			Expect(err).To(Not(BeNil()))
+			Expect(err).To(MatchError("authorization header is not a valid Bearer token"))
+			Expect(err.Error()).ToNot(ContainSubstring("not_even_close"))
+		})
 
-			token, err = getClusterID("Bearer: close but no cigar")
+		It("should reject lowercase bearer prefix", func() {
+			token, err := getToken("bearer mytoken")
 			Expect(token).To(Equal(""))
-			Expect(err).To(Not(BeNil()))
+			Expect(err).To(MatchError("authorization header is not a valid Bearer token"))
+			Expect(err.Error()).ToNot(ContainSubstring("mytoken"))
+		})
+
+		It("should reject Bearer with colon", func() {
+			token, err := getToken("Bearer: close but no cigar")
+			Expect(token).To(Equal(""))
+			Expect(err).To(MatchError("authorization header is not a valid Bearer token"))
+		})
+
+		It("should reject an empty string", func() {
+			token, err := getToken("")
+			Expect(token).To(Equal(""))
+			Expect(err).To(MatchError("authorization header is not a valid Bearer token"))
+		})
+
+		It("should reject Bearer with empty token", func() {
+			token, err := getToken("Bearer ")
+			Expect(token).To(Equal(""))
+			Expect(err).To(MatchError("authorization header is not a valid Bearer token"))
+		})
+
+		It("should reject Bearer with whitespace-only token", func() {
+			token, err := getToken("Bearer   ")
+			Expect(token).To(Equal(""))
+			Expect(err).To(MatchError("authorization header is not a valid Bearer token"))
 		})
 	})
 
@@ -101,7 +131,7 @@ var _ = Describe("HandlerWithBadWrapper", func() {
 			Expect(ident).To(Equal(&cluster.Identity{}))
 		})
 
-		It("should return an error containing contextual info from the openshift error", func() {
+		It("should return a static error without leaking account details in the response", func() {
 			errWithBodyWrapper.StatusCode = 401
 			errWithBodyWrapper.AccountError = &cluster.AccountError{
 				Href:        "href",
@@ -114,9 +144,7 @@ var _ = Describe("HandlerWithBadWrapper", func() {
 
 			rr, _ := call(errWithBodyWrapper, "insights-operator/abc cluster/123", "Bearer errmytoken")
 			body, _ := io.ReadAll(rr.Body)
-			Expect(string(body)).To(ContainSubstring("descriptive reason"))
-			Expect(string(body)).To(ContainSubstring("bad code"))
-			Expect(string(body)).To(ContainSubstring("bad id"))
+			Expect(string(body)).To(Equal("Could not authenticate"))
 		})
 	})
 })
@@ -154,32 +182,60 @@ var _ = Describe("Handler", func() {
 	})
 
 	Describe("When called with an invalid user-agent", func() {
-		It("should not return an identity header without a supported operator", func() {
+		It("should return 400 with a static error that does not leak the user-agent", func() {
 			rr, ident := call(wrapper, "curl", "Bearer mytoken")
 			Expect(rr.Result().StatusCode).To(Equal(400))
 			Expect(ident).To(Equal(&cluster.Identity{}))
+			body, _ := io.ReadAll(rr.Body)
+			Expect(string(body)).To(Equal("Invalid user-agent"))
+			Expect(string(body)).ToNot(ContainSubstring("curl"))
 		})
 
 		It("should not return an identity header without a cluster", func() {
 			rr, ident := call(wrapper, "insights-operator/abc", "Bearer mytoken")
 			Expect(rr.Result().StatusCode).To(Equal(400))
 			Expect(ident).To(Equal(&cluster.Identity{}))
+			body, _ := io.ReadAll(rr.Body)
+			Expect(string(body)).To(Equal("Invalid user-agent"))
 		})
 	})
 
 	Describe("When called with an invalid auth", func() {
-		It("should not return an identity header", func() {
+		It("should return 400 with a static error that does not leak the token", func() {
 			rr, ident := call(wrapper, "insights-operator/abc cluster/123", "Bearer: mytoken")
 			Expect(rr.Result().StatusCode).To(Equal(400))
 			Expect(ident).To(Equal(&cluster.Identity{}))
+			body, _ := io.ReadAll(rr.Body)
+			Expect(string(body)).To(Equal("Invalid authorization header"))
+			Expect(string(body)).ToNot(ContainSubstring("mytoken"))
+		})
+	})
+
+	Describe("When called with no Authorization header", func() {
+		It("should return 400 without panicking", func() {
+			rr, ident := call(wrapper, "insights-operator/abc cluster/123", "")
+			Expect(rr.Result().StatusCode).To(Equal(400))
+			Expect(ident).To(Equal(&cluster.Identity{}))
+			body, _ := io.ReadAll(rr.Body)
+			Expect(string(body)).To(Equal("Invalid authorization header"))
 		})
 	})
 
 	Describe("When called with empty auth", func() {
-		It("should return an error", func() {
+		It("should reject Bearer with empty token", func() {
 			rr, ident := call(wrapper, "insights-operator/abc cluster/123", "Bearer ")
-			Expect(rr.Result().StatusCode).To(Equal(500))
+			Expect(rr.Result().StatusCode).To(Equal(400))
 			Expect(ident).To(Equal(&cluster.Identity{}))
+			body, _ := io.ReadAll(rr.Body)
+			Expect(string(body)).To(Equal("Invalid authorization header"))
+		})
+
+		It("should reject Bearer with whitespace-only token", func() {
+			rr, ident := call(wrapper, "insights-operator/abc cluster/123", "Bearer   ")
+			Expect(rr.Result().StatusCode).To(Equal(400))
+			Expect(ident).To(Equal(&cluster.Identity{}))
+			body, _ := io.ReadAll(rr.Body)
+			Expect(string(body)).To(Equal("Invalid authorization header"))
 		})
 	})
 })
