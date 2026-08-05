@@ -21,10 +21,7 @@ LABEL name="uhc-auth-proxy" \
 WORKDIR $GOPATH/src/mypackage/myapp/
 COPY . .
 # Fetch dependencies.
-# Using go get requires root.
-USER root
-
-RUN go get -d -v
+RUN go mod download
 # Build the binary.
 RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 ############################
@@ -34,8 +31,10 @@ FROM registry.access.redhat.com/hi/core-runtime:2.43-openssl-fips
 
 # Copy our static executable.
 COPY --from=builder /go/bin/uhc-auth-proxy /go/bin/uhc-auth-proxy
+RUN chmod 755 /go/bin/uhc-auth-proxy
 # Default port
 # EXPOSE 8080/tcp
 # Run the hello binary.
 ENV GODEBUG=fips140=on
+USER 1001
 ENTRYPOINT ["/go/bin/uhc-auth-proxy", "start"]
