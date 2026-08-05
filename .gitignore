@@ -1,1 +1,5 @@
 *.code-workspace
+coverage.txt
+.claude/commands/
+.claude/settings.json
+.claude/settings.local.json
