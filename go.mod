@@ -24,7 +24,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.14 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.31 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.31 // indirect
-	github.com/aws/smithy-go v1.27.4 // indirect
+	github.com/aws/smithy-go v1.27.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
@@ -56,4 +56,4 @@ require (
 )
 
 // CVE-2026-5160: XSS in goldmark < 1.7.17 (transitive via golang.org/x/tools)
-replace github.com/yuin/goldmark => github.com/yuin/goldmark v1.8.2
+replace github.com/yuin/goldmark => github.com/yuin/goldmark v1.8.5
