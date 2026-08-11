@@ -21,9 +21,6 @@ LABEL name="uhc-auth-proxy" \
 WORKDIR $GOPATH/src/mypackage/myapp/
 COPY . .
 # Fetch dependencies.
-# Using go get requires root.
-USER root
-
 RUN go get -d -v
 # Build the binary.
 RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
@@ -38,4 +35,5 @@ COPY --from=builder /go/bin/uhc-auth-proxy /go/bin/uhc-auth-proxy
 # EXPOSE 8080/tcp
 # Run the hello binary.
 ENV GODEBUG=fips140=on
+USER 1001
 ENTRYPOINT ["/go/bin/uhc-auth-proxy", "start"]
