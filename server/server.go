@@ -111,7 +111,15 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		clusterID, err := getClusterID(r.Header.Get("user-agent"))
 		if err != nil {
-			logr.Error("Failed to get the cluster id", zap.Error(err))
+			// Invalid user-agent on identity request - SEC-MON-REQ-1 compliance (EOI-7 invalid_login)
+			logr.Error("Failed to get the cluster id",
+				zap.String("action", "AUTHENTICATE"),
+				zap.String("resource_type", "cluster_registration"),
+				zap.String("resource_id", "unknown"),
+				zap.String("outcome", "failure"),
+				zap.String("reason", "invalid_user_agent"),
+				zap.Error(err),
+			)
 			respond(400)
 			_, _ = fmt.Fprint(w, "Invalid user-agent")
 			return
@@ -119,7 +127,15 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		token, err := getToken(r.Header.Get("Authorization"))
 		if err != nil {
-			logr.Error("Failed to get the token", zap.Error(err))
+			// Invalid bearer token format on identity request - SEC-MON-REQ-1 compliance (EOI-7 invalid_login)
+			logr.Error("Failed to get the token",
+				zap.String("action", "AUTHENTICATE"),
+				zap.String("resource_type", "cluster_registration"),
+				zap.String("resource_id", clusterID),
+				zap.String("outcome", "failure"),
+				zap.String("reason", "invalid_authorization_header"),
+				zap.Error(err),
+			)
 			respond(400)
 			_, _ = fmt.Fprint(w, "Invalid authorization header")
 			return
@@ -147,7 +163,15 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 			cacheMiss.Inc()
 			ident, err := cluster.GetIdentity(wrapper, reg)
 			if err != nil {
-				fields := []zap.Field{zap.Error(err), zap.String("cluster_id", reg.ClusterID)}
+				// Upstream credential validation failure - SEC-MON-REQ-1 compliance (EOI-7 invalid_login)
+				fields := []zap.Field{
+					zap.String("action", "AUTHENTICATE"),
+					zap.String("resource_type", "cluster_registration"),
+					zap.String("resource_id", reg.ClusterID),
+					zap.String("outcome", "failure"),
+					zap.String("reason", "invalid_credentials"),
+					zap.Error(err),
+				}
 				getErrorSpecificFields(err, &fields)
 				logr.Error("could not authenticate given the credentials", fields...)
 				respond(getErrorStatusCode(err))
@@ -225,7 +249,13 @@ func Start() {
 
 	port := viper.GetInt64("SERVER_PORT")
 
-	log.Info(fmt.Sprintf("Starting server on port %d", port))
+	// Server startup - SEC-MON-REQ-1 compliance (EOI-5 process_status)
+	log.Info("Starting server",
+		zap.String("action", "START"),
+		zap.String("resource_type", "server"),
+		zap.String("resource_id", fmt.Sprintf("%d", port)),
+		zap.String("outcome", "success"),
+	)
 
 	srv := http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
