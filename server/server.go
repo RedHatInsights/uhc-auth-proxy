@@ -148,7 +148,14 @@ func RootHandler(wrapper client.Wrapper) func(w http.ResponseWriter, r *http.Req
 
 		key, err := makeKey(reg)
 		if err != nil {
-			logr.Error("could not form a valid cluster registration object", zap.Error(err))
+			// Cache key formation failure during authentication - SEC-MON-REQ-1 compliance (EOI-7 invalid_login, EOI-11 warnings_or_errors)
+			logr.Error("could not form a valid cluster registration object",
+				zap.String("action", "AUTHENTICATE"),
+				zap.String("resource_type", "cluster_registration"),
+				zap.String("resource_id", reg.ClusterID),
+				zap.String("outcome", "failure"),
+				zap.Error(err),
+			)
 			respond(500)
 			_, _ = fmt.Fprint(w, "Could not form valid cluster registration object")
 			return
@@ -263,6 +270,13 @@ func Start() {
 	}
 
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-		log.Error("server closed with error", zap.Error(err))
+		// Server listener failure - SEC-MON-REQ-1 compliance (EOI-5 process_status, EOI-11 warnings_or_errors)
+		log.Error("server closed with error",
+			zap.String("action", "STOP"),
+			zap.String("resource_type", "server"),
+			zap.String("resource_id", fmt.Sprintf("%d", port)),
+			zap.String("outcome", "failure"),
+			zap.Error(err),
+		)
 	}
 }
