@@ -56,4 +56,4 @@ require (
 )
 
 // CVE-2026-5160: XSS in goldmark < 1.7.17 (transitive via golang.org/x/tools)
-replace github.com/yuin/goldmark => github.com/yuin/goldmark v1.8.5
+replace github.com/yuin/goldmark/v2 => github.com/yuin/goldmark/v2 v2.0.0
