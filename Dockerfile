@@ -2,7 +2,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM registry.access.redhat.com/hi/go:1.26.6-fips-builder AS builder
+FROM registry.access.redhat.com/hi/go:1.27.0-fips-builder AS builder
 
 LABEL name="uhc-auth-proxy" \
       summary="UHC Auth Proxy - OpenShift Cluster Authentication Service" \
