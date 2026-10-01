@@ -239,7 +239,11 @@ func Start() {
 	r := chi.NewRouter()
 	r.Use(
 		request_id.ConfiguredRequestID("x-rh-insights-request-id"),
-		middleware.RealIP,
+		// middleware.RealIP is deprecated (IP spoofing risk, GHSA-3fxj-6jh8-hvhx).
+		// We sit behind exactly one trusted proxy hop (the OpenShift router), so
+		// ClientIPFromXFFTrustedProxies(1) reads the client IP without the spoofing
+		// risk of blindly trusting the leftmost X-Forwarded-For entry.
+		middleware.ClientIPFromXFFTrustedProxies(1),
 		middleware.Logger,
 		middleware.Recoverer,
 		middleware.StripSlashes,
