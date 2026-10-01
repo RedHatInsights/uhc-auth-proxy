@@ -104,7 +104,7 @@ Error status code logic (`getErrorStatusCode`):
 
 Applied in this order via `chi.Use`:
 1. `request_id.ConfiguredRequestID("x-rh-insights-request-id")` — generates/propagates request IDs
-2. `middleware.RealIP` — trusts X-Forwarded-For / X-Real-IP
+2. `middleware.ClientIPFromXFFTrustedProxies(1)` — reads the client IP from X-Forwarded-For, trusting exactly one proxy hop (the OpenShift router)
 3. `middleware.Logger` — request logging
 4. `middleware.Recoverer` — panic recovery returns 500
 5. `middleware.StripSlashes` — trailing slashes normalized

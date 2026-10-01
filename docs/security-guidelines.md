@@ -79,7 +79,7 @@ Rules:
 ## 8. HTTP Server Configuration
 
 Rules:
-- The server uses `chi` middleware: `request_id.ConfiguredRequestID`, `RealIP`, `Logger`, `Recoverer`, and `StripSlashes`. Do not remove `Recoverer` — it prevents panics from crashing the process and leaking stack traces.
+- The server uses `chi` middleware: `request_id.ConfiguredRequestID`, `ClientIPFromXFFTrustedProxies(1)`, `Logger`, `Recoverer`, and `StripSlashes`. `ClientIPFromXFFTrustedProxies(1)` replaces the deprecated, spoofable `RealIP` middleware and trusts exactly one proxy hop (the OpenShift router) when reading the client IP from X-Forwarded-For. Do not remove `Recoverer` — it prevents panics from crashing the process and leaking stack traces.
 - The `/metrics` endpoint exposes Prometheus metrics. It does not require authentication (it is accessed by internal scrapers), but it should not expose secret values in metric labels.
 - The `/status` endpoint is used for liveness/readiness probes. It must remain unauthenticated and lightweight.
 - The server binds to a configurable port (default 8080). It does not configure TLS directly — TLS termination is handled by the OpenShift router/ingress.

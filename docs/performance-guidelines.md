@@ -84,7 +84,7 @@ Rules:
 
 ## Middleware Stack
 
-The chi router uses these middlewares in order: `request_id`, `RealIP`, `Logger`, `Recoverer`, `StripSlashes`.
+The chi router uses these middlewares in order: `request_id`, `ClientIPFromXFFTrustedProxies(1)`, `Logger`, `Recoverer`, `StripSlashes`.
 
 Rules:
 - `Recoverer` catches panics per-request. Do not remove it.
