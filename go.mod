@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.89.0
 	github.com/go-chi/chi/v5 v5.3.2
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/onsi/ginkgo/v2 v2.33.0
+	github.com/onsi/ginkgo/v2 v2.33.1
 	github.com/onsi/gomega v1.43.1
 	github.com/prashantv/gostub v1.1.0
 	github.com/prometheus/client_golang v1.24.1
