@@ -2,7 +2,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM registry.access.redhat.com/hi/go:1.27.0-fips-builder@sha256:f61df82b9277aa825678ba9b19960bee25c84d6e07f5db269790fbd9462751f1 AS builder
+FROM registry.access.redhat.com/hi/go:1.27.2-fips-builder@sha256:6d1a0db4ba335b6ccdb8dac7e73125c39989ac3f5186b6e6c6bb2f9ceec0c832 AS builder
 
 LABEL name="uhc-auth-proxy" \
       summary="UHC Auth Proxy - OpenShift Cluster Authentication Service" \
@@ -27,7 +27,7 @@ RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 ############################
 # STEP 2 build a small image
 ############################
-FROM registry.access.redhat.com/hi/core-runtime:2.43-openssl-fips@sha256:555882ad65256d90238ddcbbe70cfbbba0219d80f0c5a71baefa3bae488e818e
+FROM registry.access.redhat.com/hi/core-runtime:2.43-openssl-fips@sha256:dda4ca9f205064c1391168713fae4dfe32057f3a1e619540db34f9d167b71c74
 
 # Copy our static executable.
 COPY --from=builder /go/bin/uhc-auth-proxy /go/bin/uhc-auth-proxy
