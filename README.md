@@ -142,7 +142,6 @@ cache/
 requests/
   client/
     wrapper.go              # HTTPWrapper / Wrapper interface — all outbound HTTP
-    access.go               # SSO token refresh with mutex-guarded caching
     config.go               # Viper defaults for ACCESS_TOKEN_URL, TIMEOUT_SECONDS
     types.go                # HttpError type
   cluster/

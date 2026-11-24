@@ -16,30 +16,17 @@ Rules:
 - Do not add a `sync.RWMutex` without profiling first; the current lock hold time is sub-microsecond and contention is unlikely to be a bottleneck relative to the upstream HTTP call.
 - Expired entries are detected on read but never evicted. If adding eviction, use a separate goroutine with its own timer rather than scanning under the write lock.
 
-### 2. Token lock (`requests/client/access.go`)
-
-`GetToken` uses a `sync.Mutex` with `defer mutex.Unlock()` and holds the lock across a network call (`fetch`) when the token is expired. This function exists in the codebase but is not currently called from the production request path.
-
-Rules:
-- If `GetToken` is wired into the request flow, be aware it is a serialization point: when the token expires, all concurrent requests block behind a single `fetch` call. Do not make this worse by adding work inside the critical section.
-- If you need to reduce contention, use a `singleflight.Group` keyed on the offline access token instead of a bare mutex.
-- Never cache the token outside this mutex. The single-writer pattern here prevents token races.
-
-### 3. Lock ordering
-
-The cache package has one active mutex. `requests/client/access.go` defines a second mutex not currently invoked in the production request path. **Do not introduce a call path that acquires both locks** (e.g., calling `cache.Set` while holding the token mutex). If you must, always acquire the token lock first, then the cache lock.
-
 ## HTTP Client
 
 ### Shared client (`requests/client/wrapper.go`)
 
-A single `http.Client` is initialized as a package-level variable in `wrapper.go` using `viper.GetDuration("TIMEOUT_SECONDS") * time.Second` for the timeout. Because this variable is initialized before `config.go`'s `init()` runs, the `viper.SetDefault("TIMEOUT_SECONDS", 30)` default has not yet been registered at that point. In practice, the client timeout is controlled entirely by the `TIMEOUT_SECONDS` environment variable, which must be set before the process starts. If the environment variable is absent, the client has no timeout. Both account management calls in `wrapper.go` and SSO token-fetch calls in `access.go` use this shared client.
+A single `http.Client` is initialized as a package-level variable in `wrapper.go` using `viper.GetDuration("TIMEOUT_SECONDS") * time.Second` for the timeout. Because this variable is initialized before `config.go`'s `init()` runs, the `viper.SetDefault("TIMEOUT_SECONDS", 30)` default has not yet been registered at that point. In practice, the client timeout is controlled entirely by the `TIMEOUT_SECONDS` environment variable, which must be set before the process starts. If the environment variable is absent, the client has no timeout.
 
 Rules:
 - Do not create per-request `http.Client` instances. The shared client reuses connections via the default `http.Transport` connection pool.
 - The `TIMEOUT_SECONDS` value is read once at package variable initialization time. Changing the env var at runtime has no effect. If dynamic timeout configuration is needed, set the timeout on the `http.Request` context instead.
 - The default `http.Transport` has `MaxIdleConns: 100` and `MaxIdleConnsPerHost: 2`. Since this service talks to a small number of upstream hosts, consider setting `MaxIdleConnsPerHost` to a higher value (e.g., 10-20) on a custom transport if connection reuse becomes a bottleneck.
-- `io.ReadAll` is used to consume response bodies in both `wrapper.go` and `access.go`. For this service the payloads are small JSON (< 10 KB). Do not switch to streaming unless payload sizes grow significantly.
+- `io.ReadAll` is used to consume response bodies in `wrapper.go`. For this service the payloads are small JSON (< 10 KB). Do not switch to streaming unless payload sizes grow significantly.
 
 ### Bug: nil-pointer dereference in `Do`
 
@@ -76,7 +63,6 @@ Rules:
 | `TIMEOUT_SECONDS` | (none — must be set via env var) | HTTP client timeout (read at package init, before viper defaults apply) |
 | `ACCESS_TOKEN_URL` | `https://sso.redhat.com/...` | SSO token endpoint |
 | `CURRENT_ACCOUNT_URL` | `https://api.openshift.com/...` | Account lookup endpoint |
-| `CLIENT_ID` | (none) | OAuth client ID |
 
 Rules:
 - The server does not configure `ReadTimeout`, `WriteTimeout`, or `IdleTimeout` on `http.Server`. If adding these, set `WriteTimeout` greater than `TIMEOUT_SECONDS` to avoid killing requests waiting for a slow upstream response.
