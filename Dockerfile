@@ -27,7 +27,7 @@ RUN CGO_ENABLED=0 go build -o /go/bin/uhc-auth-proxy
 ############################
 # STEP 2 build a small image
 ############################
-FROM registry.access.redhat.com/hi/core-runtime:2.43-openssl-fips@sha256:0340965c081f934d3ef1a8b5217b6e101fe525c721f873225d375c80ede04948
+FROM registry.access.redhat.com/hi/core-runtime:2.43-openssl-fips@sha256:04eb48f0eac07f15ef2aa5de9188961778a79de48a5d7f71a85d764bff451c55
 
 # Copy our static executable.
 COPY --from=builder /go/bin/uhc-auth-proxy /go/bin/uhc-auth-proxy
