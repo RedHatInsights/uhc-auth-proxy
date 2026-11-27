@@ -50,11 +50,6 @@ objects:
               weight: 99
         containers:
         - env:
-          - name: OAT
-            valueFrom:
-              secretKeyRef:
-                key: offline_access_token
-                name: uhc-auth-proxy-secret
           - name: CURRENT_ACCOUNT_URL
             value: ${OPENSHIFT_API_TARGET}
           - name: SERVER_PORT
@@ -81,16 +76,6 @@ objects:
               secretKeyRef:
                 key: log_group_name
                 name: cloudwatch
-          - name: CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                key: client_id
-                name: uhc-auth-proxy-secret
-          - name: CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                key: client_secret
-                name: uhc-auth-proxy-secret
           image: ${IMAGE}:${IMAGE_TAG}
           imagePullPolicy: Always
           name: uhc-auth-proxy

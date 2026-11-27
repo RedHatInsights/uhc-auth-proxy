@@ -32,10 +32,6 @@ The cache key is `clusterID:authorizationToken`, and entries expire after 2 hour
 
 The service is intentionally stateless from a deployment perspective. A pod restart clears all cached identities, which is safe because the next request simply re-authenticates against the upstream API. An external cache would add operational complexity for a workload where cache misses are cheap and infrequent. Each pod in a scaled deployment maintains its own cache, but since operator requests are typically routed consistently, duplication is minimal.
 
-## The SSO Token (GetToken) Path
-
-`requests/client/access.go` contains a mutex-guarded SSO token cache that exchanges an offline access token (OAT) for a short-lived access token. This code exists but is not currently called in the production request path — the `AccessToken` scheme used by `wrapper.go` sends the cluster credentials directly without needing an SSO token. The SSO token path was part of an earlier auth flow and remains available as an alternative mechanism. The mutex serialization in `GetToken` would be a bottleneck under high concurrency if reactivated.
-
 ## Why the Wrapper Interface
 
 All outbound HTTP goes through `client.Wrapper`, an interface with a single `Do` method. This exists purely as a test seam. The production implementation (`HTTPWrapper`) adds auth headers and makes real HTTP calls; test implementations (`FakeWrapper`, `ErrorWrapper`, `ErrorWithBodyWrapper`) return canned responses. This pattern was chosen over HTTP-level mocking because it keeps tests focused on the proxy's logic rather than HTTP plumbing.
