@@ -93,13 +93,6 @@ There is a latent nil-pointer risk in `wrapper.go`: `resp.StatusCode` is accesse
 - Only cache successful results. Errors are never cached.
 - Call `cache.Clear()` at the start of every test that exercises the handler.
 
-## SSO Token Management
-
-`requests/client/access.go` manages OAuth tokens for the SSO endpoint:
-1. Tokens are cached in a package-level variable with a mutex.
-2. A token is refreshed when expired (`now >= expires`) or when the cached token string is empty.
-3. This is a `refresh_token` grant type flow against Red Hat SSO.
-
 ## Testing Patterns
 
 ### Use the in-repo fakes, not mocks
